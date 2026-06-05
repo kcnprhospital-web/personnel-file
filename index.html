@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KCPH Personnel File System — HR.7</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Hanuman:wght@400;700&display=swap');
+.kh{font-family:'Hanuman',serif!important;}
+:root{--navy:#0d1b2a;--navy2:#1b2d42;--teal:#0a7b76;--teal-light:#0fb5ae;--gold:#d4a03a;--gold-light:#f0c060;--white:#ffffff;--gray1:#f8f8f6;--gray2:#e8e4dc;--gray3:#b0a898;--gray4:#7a7060;--red:#c0392b;--green:#1a7a4a;--blue:#1a5fa8;--shadow:0 4px 24px rgba(13,27,42,.12);--shadow-lg:0 8px 40px rgba(13,27,42,.18);--radius:10px;--radius-lg:16px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--navy);min-height:100vh;}
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0d1b2a 0%,#0a3050 60%,#0d4a5a 100%);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.login-box{background:#fff;border-radius:20px;padding:40px;width:400px;max-width:94vw;box-shadow:var(--shadow-lg);text-align:center;}
+.login-logo{width:84px;height:84px;object-fit:contain;margin:0 auto 14px;display:block;border-radius:50%;}
+.login-title{font-size:19px;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.login-sub{font-size:11px;color:var(--gray4);margin-bottom:24px;font-family:'DM Mono',monospace;}
+.lg{text-align:left;margin-bottom:13px;}
+.ll{font-size:11px;font-weight:500;color:var(--gray4);margin-bottom:4px;display:block;}
+.li{width:100%;border:1.5px solid var(--gray2);border-radius:8px;padding:10px 13px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--navy);outline:none;transition:border .2s;}
+.li:focus{border-color:var(--teal);}
+.login-btn{width:100%;background:var(--teal);color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;margin-top:6px;}
+.login-btn:hover{background:var(--teal-light);}
+.login-err{color:var(--red);font-size:12px;margin-top:7px;min-height:17px;}
+.login-hint{font-size:10px;color:var(--gray3);margin-top:12px;font-family:'DM Mono',monospace;}
+/* TOPBAR */
+.topbar{background:var(--navy);color:#fff;padding:0 22px;height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:100;}
+.tl{display:flex;align-items:center;gap:11px;}
+.tlogo{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.2);}
+.ttitle{font-size:13px;font-weight:600;}
+.tsub{font-size:9px;color:var(--teal-light);font-family:'DM Mono',monospace;margin-top:1px;}
+.tr2{display:flex;align-items:center;gap:10px;}
+.tuser{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.06);padding:4px 11px 4px 7px;border-radius:20px;}
+.tav{width:24px;height:24px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;}
+.tuname{font-size:11px;color:rgba(255,255,255,.85);}
+.trole{font-size:9px;font-family:'DM Mono',monospace;padding:2px 6px;border-radius:10px;}
+.role-admin{background:rgba(212,160,58,.2);color:var(--gold-light);}
+.role-staff{background:rgba(10,123,118,.2);color:var(--teal-light);}
+.btb{background:rgba(255,255,255,.09);color:#fff;border:1px solid rgba(255,255,255,.14);padding:5px 13px;border-radius:6px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;}
+.btb:hover{background:rgba(255,255,255,.16);}
+.btb-teal{background:var(--teal);border-color:var(--teal);}
+.btb-teal:hover{background:var(--teal-light);}
+/* LAYOUT */
+.layout{display:flex;height:calc(100vh - 56px);}
+.sidebar{width:248px;min-width:248px;background:var(--navy2);display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,.06);overflow-y:auto;}
+.sb-s{padding:13px 11px 5px;}
+.sb-lbl{font-size:9px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.22);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;padding-left:4px;}
+.sb-srch{display:flex;align-items:center;background:rgba(255,255,255,.06);border-radius:7px;border:1px solid rgba(255,255,255,.1);padding:0 9px;margin-bottom:7px;}
+.sb-srch input{background:transparent;border:none;outline:none;color:#fff;font-size:12px;padding:6px 5px;flex:1;font-family:'DM Sans',sans-serif;}
+.sb-srch input::placeholder{color:var(--gray3);}
+.stlist{padding:0 5px 6px;}
+.si{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer;transition:background .15s;margin-bottom:2px;}
+.si:hover{background:rgba(255,255,255,.06);}
+.si.active{background:rgba(10,123,118,.25);border:1px solid rgba(10,123,118,.4);}
+.si-av{width:30px;height:30px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;font-family:'DM Mono',monospace;}
+.si-i{flex:1;min-width:0;}
+.si-n{font-size:11px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.si-d{font-size:10px;color:var(--gray3);}
+.si-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.d-ok{background:#1a7a4a;}.d-par{background:var(--gold);}.d-mis{background:var(--red);}
+.nav{padding:5px;}
+.ni{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;cursor:pointer;color:var(--gray3);font-size:12px;font-weight:500;transition:all .15s;margin-bottom:2px;}
+.ni:hover{background:rgba(255,255,255,.06);color:#fff;}
+.ni.active{background:rgba(10,123,118,.2);color:var(--teal-light);}
+.ni .ic{font-size:14px;width:18px;text-align:center;}
+.ndiv{border:none;border-top:1px solid rgba(255,255,255,.06);margin:6px 10px;}
+/* MAIN */
+.main{flex:1;background:var(--gray1);overflow-y:auto;display:flex;flex-direction:column;}
+.panel{display:none;flex:1;flex-direction:column;}
+.panel.active{display:flex;}
+.sh{background:#fff;padding:20px 26px 15px;border-bottom:1px solid var(--gray2);}
+.st{font-size:18px;font-weight:700;color:var(--navy);}
+.ss{font-size:11px;color:var(--gray4);margin-top:3px;}
+.sbody{padding:20px 26px;}
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;padding:18px 26px;}
+.sc{background:#fff;border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow);border-left:4px solid var(--teal);}
+.sc.gold{border-left-color:var(--gold);}.sc.red{border-left-color:var(--red);}.sc.blue{border-left-color:var(--blue);}
+.sc-n{font-size:28px;font-weight:700;color:var(--navy);font-family:'DM Mono',monospace;}
+.sc-l{font-size:11px;color:var(--gray4);margin-top:3px;font-weight:500;}
+/* DASH GRID */
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 26px 26px;}
+.dc{background:#fff;border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow);}
+.dc-t{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.cb{margin-bottom:10px;}
+.cb-h{display:flex;justify-content:space-between;margin-bottom:4px;}
+.cb-n{font-size:11px;color:var(--navy);font-weight:500;}
+.cb-p{font-size:11px;color:var(--teal);font-family:'DM Mono',monospace;font-weight:600;}
+.cb-t{background:var(--gray2);border-radius:3px;height:5px;overflow:hidden;}
+.cb-f{height:5px;border-radius:3px;background:var(--teal);}
+.cb-f.w{background:var(--gold);}.cb-f.d{background:var(--red);}
+.ei{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;background:var(--gray1);border-left:3px solid var(--gold);margin-bottom:7px;}
+.ei.urg{border-left-color:var(--red);background:#fff5f5;}
+.ei-n{font-size:12px;font-weight:600;color:var(--navy);}
+.ei-d{font-size:10px;color:var(--gray4);}
+.ei-dt{font-size:10px;font-family:'DM Mono',monospace;color:var(--gold);font-weight:600;margin-left:auto;}
+.ei.urg .ei-dt{color:var(--red);}
+/* PROFILE */
+.ph{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);padding:22px 26px;color:#fff;display:flex;align-items:center;gap:18px;}
+.ph-av{width:62px;height:62px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;border:3px solid rgba(255,255,255,.2);flex-shrink:0;overflow:hidden;}
+.ph-av img{width:100%;height:100%;object-fit:cover;}
+.ph-nm{font-size:18px;font-weight:700;}
+.ph-pos{font-size:11px;color:var(--teal-light);margin-top:2px;}
+.ph-tags{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap;}
+.ph-tag{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.8);font-size:9px;padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace;}
+.ph-act{display:flex;gap:7px;flex-shrink:0;margin-left:auto;}
+.be{background:var(--teal);color:#fff;border:none;padding:7px 16px;border-radius:7px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;}
+.be:hover{background:var(--teal-light);}
+.bo{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.24);padding:7px 16px;border-radius:7px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;}
+.bo:hover{background:rgba(255,255,255,.1);}
+/* TABS */
+.tab-bar{background:#fff;border-bottom:1px solid var(--gray2);display:flex;padding:0 26px;overflow-x:auto;}
+.ti{padding:12px 14px;font-size:11px;font-weight:500;color:var(--gray4);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;display:flex;align-items:center;gap:4px;}
+.ti:hover{color:var(--navy);}.ti.active{color:var(--teal);border-bottom-color:var(--teal);}
+.tb{background:var(--teal);color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;font-family:'DM Mono',monospace;}
+.tb.miss{background:var(--red);}
+.tab-content{display:none;padding:20px 26px;}
+.tab-content.active{display:block;}
+/* FORMS */
+.fs{background:#fff;border-radius:var(--radius-lg);padding:18px;margin-bottom:16px;box-shadow:var(--shadow);}
+.fs-t{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:13px;display:flex;align-items:center;gap:6px;padding-bottom:10px;border-bottom:1px solid var(--gray2);}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:11px;}
+.fr.t3{grid-template-columns:1fr 1fr 1fr;}.fr.s1{grid-template-columns:1fr;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fl{font-size:11px;font-weight:500;color:var(--gray4);}
+.req{color:var(--red);margin-left:2px;}
+.fc{border:1px solid var(--gray2);border-radius:7px;padding:7px 10px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--navy);background:#fff;outline:none;transition:border .2s;width:100%;}
+.fc:focus{border-color:var(--teal);box-shadow:0 0 0 2px rgba(10,123,118,.1);}
+.fc:disabled{background:var(--gray1);color:var(--gray4);}
+select.fc{cursor:pointer;}
+textarea.fc{resize:vertical;min-height:70px;}
+/* DOC CARDS */
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px;}
+.doc-card{background:#fff;border:2px dashed var(--gray2);border-radius:var(--radius-lg);padding:15px 12px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.doc-card:hover{border-color:var(--teal);background:rgba(10,123,118,.03);}
+.doc-card.hf{border:2px solid var(--teal);background:rgba(10,123,118,.04);}
+.doc-card.rm{border-color:var(--red);background:rgba(192,57,43,.04);}
+.doc-card.ro{cursor:default;pointer-events:none;}
+.doc-card input[type=file]{display:none;}
+.doc-ic{font-size:26px;margin-bottom:7px;display:block;}
+.doc-nm{font-size:11px;font-weight:600;color:var(--navy);margin-bottom:2px;}
+.doc-sub{font-size:9px;color:var(--gray3);}
+.dbadge{position:absolute;top:6px;right:6px;font-size:8px;padding:2px 5px;border-radius:9px;font-family:'DM Mono',monospace;}
+.dbR{background:rgba(192,57,43,.1);color:var(--red);}
+.dbO{background:rgba(0,0,0,.06);color:var(--gray4);}
+.dbOK{background:rgba(26,122,74,.1);color:var(--green);}
+.doc-fn{font-size:9px;color:var(--teal);margin-top:4px;font-family:'DM Mono',monospace;word-break:break-all;}
+.doc-rm-btn{position:absolute;top:6px;left:6px;background:var(--red);color:#fff;border:none;border-radius:50%;width:17px;height:17px;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1;}
+.doc-card.hf .doc-rm-btn{display:flex;}
+.doc-exp input{font-size:9px;border:1px solid var(--gray2);border-radius:4px;padding:2px 5px;color:var(--navy);font-family:'DM Mono',monospace;width:100%;text-align:center;margin-top:5px;}
+/* TABLES */
+.tw{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;}
+.th2{background:var(--navy);padding:11px 16px;display:flex;justify-content:space-between;align-items:center;}
+.th2 h4{color:#fff;font-size:12px;font-weight:600;}
+.btn-add{background:var(--teal);color:#fff;border:none;padding:5px 12px;border-radius:5px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;}
+.btn-add:hover{background:var(--teal-light);}
+table{width:100%;border-collapse:collapse;}
+th{background:var(--gray1);font-size:10px;color:var(--gray4);font-weight:600;text-transform:uppercase;letter-spacing:.7px;padding:8px 13px;text-align:left;border-bottom:1px solid var(--gray2);}
+td{padding:9px 13px;font-size:11px;color:var(--navy);border-bottom:1px solid var(--gray2);}
+tr:last-child td{border-bottom:none;}tr:hover td{background:var(--gray1);}
+.tda{display:flex;gap:4px;}
+.bs{padding:3px 8px;font-size:10px;border-radius:4px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;border:none;}
+.bs.t{background:rgba(10,123,118,.12);color:var(--teal);}
+.bs.r{background:rgba(192,57,43,.1);color:var(--red);}
+.bs.g{background:rgba(212,160,58,.12);color:#8a6020;}
+/* HR7 CHECKLIST */
+.chk{display:flex;flex-direction:column;gap:8px;}
+.chi{background:#fff;border-radius:var(--radius);padding:11px 14px;display:flex;align-items:center;gap:11px;border:1px solid var(--gray2);box-shadow:var(--shadow);}
+.chi-ic{font-size:17px;flex-shrink:0;}
+.chi-tx{flex:1;}
+.chi-t{font-size:12px;font-weight:600;color:var(--navy);}
+.chi-d{font-size:10px;color:var(--gray4);margin-top:1px;}
+.chi-b{font-size:10px;padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace;font-weight:600;flex-shrink:0;}
+.b-ok{background:rgba(26,122,74,.12);color:var(--green);}
+.b-ms{background:rgba(192,57,43,.1);color:var(--red);}
+/* USER CARDS */
+.uc{background:#fff;border-radius:var(--radius-lg);border:1px solid var(--gray2);padding:14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);margin-bottom:9px;}
+.uav{width:40px;height:40px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;font-family:'DM Mono',monospace;}
+.uav.adm{background:var(--gold);}
+.ui{flex:1;}
+.un{font-size:13px;font-weight:600;color:var(--navy);}
+.um{font-size:10px;color:var(--gray4);margin-top:2px;}
+.ua{display:flex;gap:7px;}
+/* EXPORT CARDS */
+.ec{background:#fff;border-radius:var(--radius-lg);padding:17px;box-shadow:var(--shadow);border-left:4px solid var(--teal);display:flex;align-items:center;gap:14px;margin-bottom:12px;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.ec:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);}
+.ec-ic{font-size:28px;flex-shrink:0;}
+.ec-inf{flex:1;}
+.ec-t{font-size:13px;font-weight:600;color:var(--navy);}
+.ec-d{font-size:10px;color:var(--gray4);margin-top:2px;}
+.ec-btn{background:var(--teal);color:#fff;border:none;padding:7px 17px;border-radius:6px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;flex-shrink:0;}
+.ec.gold{border-left-color:var(--gold);}.ec.blue{border-left-color:var(--blue);}.ec.red2{border-left-color:var(--red);}.ec.grn{border-left-color:var(--green);}
+/* MODAL */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center;}
+.mo.open{display:flex;}
+.modal{background:#fff;border-radius:var(--radius-lg);width:530px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:mIn .2s ease;}
+@keyframes mIn{from{transform:scale(.95);opacity:0;}to{transform:scale(1);opacity:1;}}
+.mh{background:var(--navy);color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
+.mh-t{font-size:14px;font-weight:600;}
+.mc{background:none;border:none;color:#fff;font-size:21px;cursor:pointer;line-height:1;}
+.mb{padding:20px;}
+.mf{padding:13px 20px;border-top:1px solid var(--gray2);display:flex;justify-content:flex-end;gap:8px;}
+.bp{background:var(--teal);color:#fff;border:none;padding:8px 18px;border-radius:7px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;}
+.bp:hover{background:var(--teal-light);}
+.bcan{background:var(--gray2);color:var(--gray4);border:none;padding:8px 18px;border-radius:7px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;}
+.bdng{background:var(--red);color:#fff;border:none;padding:8px 18px;border-radius:7px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;}
+/* TOAST */
+.tw2{position:fixed;bottom:18px;right:18px;z-index:999;display:flex;flex-direction:column;gap:6px;}
+.toast{background:var(--navy);color:#fff;padding:10px 16px;border-radius:8px;font-size:12px;box-shadow:var(--shadow-lg);border-left:4px solid var(--teal);animation:tIn .3s ease;display:flex;align-items:center;gap:8px;}
+.toast.err{border-left-color:var(--red);}.toast.wrn{border-left-color:var(--gold);}
+@keyframes tIn{from{transform:translateX(40px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+/* MISC */
+.hidden{display:none!important;}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:9px;font-family:'DM Mono',monospace;font-weight:600;}
+.p-g{background:rgba(26,122,74,.12);color:var(--green);}
+.p-au{background:rgba(212,160,58,.12);color:#8a6020;}
+.p-r{background:rgba(192,57,43,.1);color:var(--red);}
+.p-b{background:rgba(26,95,168,.12);color:var(--blue);}
+.ibox{background:rgba(10,123,118,.07);border:1px solid rgba(10,123,118,.2);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:11px;color:var(--navy);}
+.wbox{background:rgba(212,160,58,.08);border:1px solid rgba(212,160,58,.3);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:11px;color:#5a3d00;}
+.soh{background:linear-gradient(135deg,var(--teal) 0%,#0d5550 100%);color:#fff;padding:18px 26px;display:flex;align-items:center;gap:14px;}
+@media(max-width:768px){.sidebar{width:0;min-width:0;overflow:hidden;}.stats-row{grid-template-columns:1fr 1fr;}.fr,.fr.t3{grid-template-columns:1fr;}.dg{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<!-- LOGIN -->
+<div class="login-screen" id="LS">
+  <div class="login-box">
+    <img src="data:image/jpeg;base64,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" class="login-logo" alt="KCPH">
+    <div class="login-title"><span id="login-title-txt">Personnel File System</span></div>
+    <div class="login-sub"><span id="login-sub-txt">KAMPONG CHHNANG PROVINCIAL HOSPITAL · CHAS HR.7</span></div>
+    <div style="display:flex;justify-content:center;gap:8px;margin-bottom:8px;">
+      <button onclick="setLang('en')" id="btnLangEn" style="padding:4px 14px;border-radius:20px;border:1.5px solid var(--teal);background:var(--teal);color:#fff;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">EN</button>
+      <button onclick="setLang('kh')" id="btnLangKh" style="padding:4px 14px;border-radius:20px;border:1.5px solid var(--gray2);background:#fff;color:var(--navy);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;">ខ្មែរ</button>
+    </div>
+    <div class="lg"><label class="ll"><span id="login-user-lbl">Username / Staff ID</span></label><input class="li" id="lUser" placeholder="Enter username" autocomplete="off"></div>
+    <div class="lg"><label class="ll"><span id="login-pass-lbl">Password</span></label><input class="li" type="password" id="lPass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="login-btn" id="lBtn" onclick="doLogin()"><span id="lBtnTxt">Sign In</span></button>
+    <div class="login-err" id="lErr"></div>
+    <div class="login-hint" id="login-hint-txt">Default admin · username: <b>admin</b> · password: <b>admin123</b></div>
+  </div>
+</div>
+<!-- APP -->
+<div id="APP" class="hidden">
+<div class="topbar">
+  <div class="tl"><img src="data:image/jpeg;base64,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" class="tlogo" alt="KCPH"><div><div class="ttitle" id="ttitleTxt">Personnel File Management System</div><div class="tsub" id="tsubTxt">KAMPONG CHHNANG PROVINCIAL HOSPITAL · CHAS HR.7</div></div></div>
+  <div class="tr2">
+    <button class="btb" id="langBtn" onclick="toggleLang()" title="Switch Language">🇰🇭 ខ្មែរ</button>
+    <div class="tuser"><div class="tav" id="tbAv">?</div><span class="tuname" id="tbName">—</span><span class="trole" id="tbRole">—</span></div>
+    <button class="btb btb-teal hidden" id="btnNS" onclick="openNSM()"><span id="btnNSTxt">＋ New Staff</span></button>
+    <button class="btb" onclick="doLogout()"><span id="btnSOTxt">Sign Out</span></button>
+  </div>
+</div>
+<div class="layout">
+<div class="sidebar" id="SB">
+  <div id="adminNav">
+    <div class="sb-s"><div class="nav">
+      <div class="sb-lbl">Admin Tools</div>
+      <div class="ni active" onclick="showPanel('dashboard')" id="nav-dashboard"><span class="ic">📊</span> <span id="nav_dashboard_txt">Dashboard</span></div>
+      <div class="ni" onclick="showPanel('usermgmt')" id="nav-usermgmt"><span class="ic">👤</span> <span id="nav_usermgmt_txt">User Management</span></div>
+      <div class="ni" onclick="showPanel('expiry')" id="nav-expiry"><span class="ic">⏰</span> <span id="nav_expiry_txt">Expiry Monitor</span></div>
+      <div class="ni" onclick="showPanel('audit')" id="nav-audit"><span class="ic">✅</span> <span id="nav_audit_txt">HR.7 Audit</span></div>
+      <div class="ni" onclick="showPanel('export')" id="nav-export"><span class="ic">📤</span> <span id="nav_export_txt">Export Data</span></div>
+      <hr class="ndiv"><div class="sb-lbl">Staff Files</div>
+    </div></div>
+    <div class="sb-s" style="flex:1;">
+      <div class="sb-srch"><span>🔍</span><input type="text" id="sbSrch" placeholder="Search staff…" oninput="filterStaff()"></div>
+      <div class="stlist" id="stList"></div>
+    </div>
+  </div>
+  <div id="staffNav" class="hidden">
+    <div class="sb-s"><div class="nav">
+      <div class="sb-lbl">My File</div>
+      <div class="ni active" onclick="showSec('overview')"><span class="ic">🪪</span> <span id="nav_overview_txt">My Overview</span></div>
+      <div class="ni" onclick="showSec('personal')"><span class="ic">👤</span> <span id="nav_personal_txt">Personal Info</span></div>
+      <div class="ni" onclick="showSec('credentials')"><span class="ic">🏅</span> <span id="nav_credentials_txt">Credentials</span></div>
+      <div class="ni" onclick="showSec('documents')"><span class="ic">📁</span> <span id="nav_documents_txt">Documents</span></div>
+      <div class="ni" onclick="showSec('training')"><span class="ic">🎓</span> <span id="nav_training_txt">Training</span></div>
+      <div class="ni" onclick="showSec('employment')"><span class="ic">📝</span> <span id="nav_employment_txt">Employment</span></div>
+      <div class="ni" onclick="showSec('health')"><span class="ic">💉</span> <span id="nav_health_txt">Health Records</span></div>
+      <div class="ni" onclick="showSec('hr7')"><span class="ic">✅</span> <span id="nav_hr7_txt">HR.7 Status</span></div>
+    </div></div>
+  </div>
+</div>
+<div class="main" id="MC">
+<!-- DASHBOARD -->
+<div class="panel active" id="panel-dashboard">
+  <div class="sh"><div class="st" id="dashTitleTxt">HR.7 Compliance Dashboard</div><div class="ss" id="dashDate"></div></div>
+  <div class="stats-row">
+    <div class="sc"><div class="sc-n" id="s-tot">0</div><div class="sc-l" id="s_tot_lbl">Total Staff Files</div></div>
+    <div class="sc gold"><div class="sc-n" id="s-cmp">0</div><div class="sc-l" id="s_cmp_lbl">Complete (HR.7 100%)</div></div>
+    <div class="sc red"><div class="sc-n" id="s-inc">0</div><div class="sc-l" id="s_inc_lbl">Incomplete Files</div></div>
+    <div class="sc blue"><div class="sc-n" id="s-exp">0</div><div class="sc-l" id="s_exp_lbl">Expiring ≤30 Days</div></div>
+  </div>
+  <div class="dg">
+    <div class="dc"><div class="dc-t">📋 <span id="comp_bars_title">Document Compliance by Type</span></div><div id="compBars"></div></div>
+    <div class="dc"><div class="dc-t">⏰ <span id="exp_list_title">Upcoming Expirations (60 days)</span></div><div id="expList"></div></div>
+  </div>
+</div>
+<!-- USER MGMT -->
+<div class="panel" id="panel-usermgmt">
+  <div class="sh"><div class="st">👤 <span id="usermgmt_title_txt">User Management</span></div><div class="ss" id="usermgmt_sub_txt">Create, manage, and deactivate staff accounts</div></div>
+  <div class="sbody">
+    <div style="display:flex;gap:9px;margin-bottom:18px;">
+      <button class="bp" onclick="openNSM()"><span id="btnCreateStaffTxt">＋ Create Staff Account</span></button>
+      <button class="bp" style="background:var(--gold);" onclick="openNAM()"><span id="btnAddAdminTxt">＋ Add Admin User</span></button>
+    </div>
+    <div id="uList"></div>
+  </div>
+</div>
+<!-- EXPIRY -->
+<div class="panel" id="panel-expiry">
+  <div class="sh"><div class="st">⏰ Document Expiry Monitor</div><div class="ss">Licenses and certifications expiring soon</div></div>
+  <div class="sbody">
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <button class="bs t" style="padding:5px 12px;font-size:11px;" onclick="renderExpiry(30)">30 Days</button>
+      <button class="bs t" style="padding:5px 12px;font-size:11px;" onclick="renderExpiry(60)">60 Days</button>
+      <button class="bs t" style="padding:5px 12px;font-size:11px;" onclick="renderExpiry(90)">90 Days</button>
+    </div>
+    <div class="tw"><div class="th2"><h4>⏰ Document Expiration Tracker</h4></div>
+    <table><thead><tr><th>Staff Name</th><th>Dept</th><th>Document</th><th>Expiry Date</th><th>Days Left</th><th>Status</th><th>Action</th></tr></thead><tbody id="expTbl"></tbody></table></div>
+  </div>
+</div>
+<!-- AUDIT -->
+<div class="panel" id="panel-audit">
+  <div class="sh"><div class="st">✅ HR.7 Hospital-Wide Audit</div><div class="ss">CHAS HR.7 compliance status for all personnel files</div></div>
+  <div class="sbody">
+    <div class="tw"><div class="th2"><h4>HR.7 Compliance by Staff</h4></div>
+    <table><thead><tr><th>#</th><th>Name</th><th>Position</th><th>Dept</th><th>Score</th><th>Missing Items</th><th>Action</th></tr></thead><tbody id="audTbl"></tbody></table></div>
+  </div>
+</div>
+<!-- EXPORT -->
+<div class="panel" id="panel-export">
+  <div class="sh"><div class="st">📤 Export &amp; Reports</div><div class="ss">Download staff data and compliance reports</div></div>
+  <div class="sbody">
+    <div class="ec" onclick="xCSV('all')"><span class="ec-ic">📊</span><div class="ec-inf"><div class="ec-t">All Staff Data (CSV)</div><div class="ec-d">Full personnel registry — names, credentials, employment details</div></div><button class="ec-btn">Export CSV</button></div>
+    <div class="ec gold" onclick="xCSV('hr7')"><span class="ec-ic">✅</span><div class="ec-inf"><div class="ec-t">HR.7 Compliance Report (CSV)</div><div class="ec-d">Compliance score and missing items per staff member</div></div><button class="ec-btn" style="background:var(--gold);">Export CSV</button></div>
+    <div class="ec red2" onclick="xCSV('expiry')"><span class="ec-ic">⏰</span><div class="ec-inf"><div class="ec-t">Expiry Report — 90 Days (CSV)</div><div class="ec-d">All documents expiring within 90 days</div></div><button class="ec-btn" style="background:var(--red);">Export CSV</button></div>
+    <div class="ec blue" onclick="xCSV('training')"><span class="ec-ic">🎓</span><div class="ec-inf"><div class="ec-t">Training Records (CSV)</div><div class="ec-d">All staff training and CME records</div></div><button class="ec-btn" style="background:var(--blue);">Export CSV</button></div>
+    <div class="ec grn" onclick="printAudit()"><span class="ec-ic">🖨️</span><div class="ec-inf"><div class="ec-t">Print HR.7 Audit Report</div><div class="ec-d">Printable compliance summary for CHAS survey</div></div><button class="ec-btn" style="background:var(--green);">Print</button></div>
+  </div>
+</div>
+<!-- PROFILE (admin view) -->
+<div class="panel" id="panel-profile">
+  <div class="ph" id="profHdr">
+    <div class="ph-av" id="profAv">—</div>
+    <div style="flex:1;"><div class="ph-nm" id="profNm">—</div><div class="ph-pos" id="profPos">—</div><div class="ph-tags" id="profTags"></div></div>
+    <div class="ph-act">
+      <button class="be" onclick="saveProfile()">💾 Save</button>
+      <button class="bo" onclick="printProfile()">🖨️ Print</button>
+      <button id="btnRemoveStaff" onclick="promptDelFromProfile()" style="background:rgba(192,57,43,0.85);color:#fff;border:none;padding:7px 16px;border-radius:7px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:4px;">🗑️ Remove Staff</button>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <div class="ti active" onclick="showTab('personal')">👤 Personal</div>
+    <div class="ti" onclick="showTab('credentials')">🏅 Credentials <span class="tb miss" id="badge-cred">!</span></div>
+    <div class="ti" onclick="showTab('documents')">📁 Documents <span class="tb" id="badge-docs">0</span></div>
+    <div class="ti" onclick="showTab('training')">🎓 Training <span class="tb" id="badge-trn">0</span></div>
+    <div class="ti" onclick="showTab('employment')">📝 Employment</div>
+    <div class="ti" onclick="showTab('health')">💉 Health</div>
+    <div class="ti" onclick="showTab('hr7check')">✅ HR.7 Check</div>
+  </div>
+  <div id="profTabs"></div>
+</div>
+<!-- STAFF OWN -->
+<div class="panel" id="panel-staffown">
+  <div class="soh">
+    <div class="ph-av" id="soAv">?</div>
+    <div><div style="font-size:17px;font-weight:700;">My Personnel File</div><div style="font-size:11px;opacity:.8;margin-top:2px;" id="soName">—</div><div style="font-size:9px;opacity:.55;margin-top:3px;">CHAS HR.7 — Complete your file to achieve full compliance</div></div>
+    <div style="margin-left:auto;display:flex;gap:7px;"><button class="be" onclick="saveSO()">💾 Save My File</button><button class="bo" onclick="printProfile()">🖨️ Print</button></div>
+  </div>
+  <div id="soContent" style="padding:20px 26px;overflow-y:auto;flex:1;"></div>
+</div>
+</div></div></div>
+<div class="tw2" id="TW"></div>
+<!-- MODALS -->
+<div class="mo" id="mNS"><div class="modal">
+  <div class="mh"><div class="mh-t" id="mNS_title">➕ Create New Staff Account</div><button class="mc" onclick="CM('mNS')">×</button></div>
+  <div class="mb">
+    <div class="ibox">Admin sets the initial login. Staff can log in and complete their own file.</div>
+    <div class="fr"><div class="fg"><label class="fl">First Name <span class="req">*</span></label><input class="fc" id="ns_fn"></div><div class="fg"><label class="fl">Last Name <span class="req">*</span></label><input class="fc" id="ns_ln"></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Position <span class="req">*</span></label><select class="fc" id="ns_pos"><option value="">—</option></select></div><div class="fg"><label class="fl">Department <span class="req">*</span></label><select class="fc" id="ns_dept"><option value="">—</option></select></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Username <span class="req">*</span></label><input class="fc" id="ns_un" placeholder="e.g. dr.sok or kcph001"></div><div class="fg"><label class="fl">Password <span class="req">*</span></label><input class="fc" id="ns_pw" placeholder="Min 6 characters"></div></div>
+  </div>
+  <div class="mf"><button class="bcan" onclick="CM('mNS')">Cancel</button><button class="bp" onclick="addStaff()">Create Account</button></div>
+</div></div>
+<div class="mo" id="mNA"><div class="modal">
+  <div class="mh"><div class="mh-t" id="mNA_title">🔑 Add Admin User</div><button class="mc" onclick="CM('mNA')">×</button></div>
+  <div class="mb">
+    <div class="wbox">⚠️ Admin users have full access to all staff files and system settings.</div>
+    <div class="fr"><div class="fg"><label class="fl">Display Name <span class="req">*</span></label><input class="fc" id="na_nm"></div><div class="fg"><label class="fl">Username <span class="req">*</span></label><input class="fc" id="na_un"></div></div>
+    <div class="fr s1"><div class="fg"><label class="fl">Password <span class="req">*</span></label><input class="fc" type="password" id="na_pw" placeholder="Min 8 characters"></div></div>
+  </div>
+  <div class="mf"><button class="bcan" onclick="CM('mNA')">Cancel</button><button class="bp" onclick="addAdmin()">Create Admin</button></div>
+</div></div>
+<div class="mo" id="mCPW"><div class="modal">
+  <div class="mh"><div class="mh-t" id="mCPW_title">🔑 Change Password</div><button class="mc" onclick="CM('mCPW')">×</button></div>
+  <div class="mb">
+    <div class="fr s1"><div class="fg"><label class="fl">New Password <span class="req">*</span></label><input class="fc" id="cpw1" type="password"></div></div>
+    <div class="fr s1"><div class="fg"><label class="fl">Confirm Password <span class="req">*</span></label><input class="fc" id="cpw2" type="password"></div></div>
+    <input type="hidden" id="cpwUid">
+  </div>
+  <div class="mf"><button class="bcan" onclick="CM('mCPW')">Cancel</button><button class="bp" onclick="doCPW()">Update Password</button></div>
+</div></div>
+<div class="mo" id="mTR"><div class="modal">
+  <div class="mh"><div class="mh-t" id="mTR_title">🎓 Add Training Record</div><button class="mc" onclick="CM('mTR')">×</button></div>
+  <div class="mb">
+    <div class="fr s1"><div class="fg"><label class="fl">Training Title <span class="req">*</span></label><input class="fc" id="tr_t" placeholder="e.g. IPC Basic Training"></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Provider</label><input class="fc" id="tr_p" placeholder="MOH, WHO, KCPH…"></div><div class="fg"><label class="fl">Type</label><select class="fc" id="tr_ty"><option>IPC</option><option>Clinical</option><option>Leadership/Management</option><option>Emergency/BLS</option><option>Patient Safety</option><option>Administration</option><option>CME</option><option>Other</option></select></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Date</label><input class="fc" type="date" id="tr_d"></div><div class="fg"><label class="fl">Hours</label><input class="fc" type="number" id="tr_h" placeholder="8"></div></div>
+    <div class="fr s1"><div class="fg"><label class="fl">Certificate Upload</label>
+    <div class="doc-card" style="text-align:left;display:flex;align-items:center;gap:10px;padding:10px 13px;" onclick="document.getElementById('tr_cf').click()">
+    <input type="file" id="tr_cf" accept="image/*,application/pdf" capture="environment" onchange="trCert(event)">
+    <span style="font-size:21px;">📜</span><div><div style="font-size:11px;font-weight:600;" id="tr_cl">Tap to photograph or upload certificate</div><div style="font-size:9px;color:var(--gray3);">Camera / file · Auto-compressed</div></div></div></div></div>
+  </div>
+  <div class="mf"><button class="bcan" onclick="CM('mTR')">Cancel</button><button class="bp" onclick="saveTr()">Add Training</button></div>
+</div></div>
+<div class="mo" id="mAP"><div class="modal">
+  <div class="mh"><div class="mh-t" id="mAP_title">📊 Add Performance Appraisal</div><button class="mc" onclick="CM('mAP')">×</button></div>
+  <div class="mb">
+    <div class="fr"><div class="fg"><label class="fl">Year <span class="req">*</span></label><input class="fc" type="number" id="ap_y" placeholder="2025"></div><div class="fg"><label class="fl">Period</label><select class="fc" id="ap_p"><option>Annual</option><option>Semi-annual (H1)</option><option>Semi-annual (H2)</option><option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option></select></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Score (%)</label><input class="fc" type="number" id="ap_s" min="0" max="100" placeholder="85"></div><div class="fg"><label class="fl">Rating</label><select class="fc" id="ap_r"><option>Excellent</option><option>Good</option><option>Satisfactory</option><option>Needs Improvement</option><option>Unsatisfactory</option></select></div></div>
+    <div class="fr s1"><div class="fg"><label class="fl">Appraiser</label><input class="fc" id="ap_a" placeholder="Supervisor name"></div></div>
+  </div>
+  <div class="mf"><button class="bcan" onclick="CM('mAP')">Cancel</button><button class="bp" onclick="saveAP()">Save</button></div>
+</div></div>
+<div class="mo" id="mDEL"><div class="modal">
+  <div class="mh" style="background:var(--red);"><div class="mh-t"><span id="mDEL_title">⚠️ Remove Staff Account</span></div><button class="mc" onclick="CM('mDEL')">×</button></div>
+  <div class="mb">
+    <p style="font-size:13px;margin-bottom:10px;">Remove account for:</p>
+    <p style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:12px;" id="delName">—</p>
+    <div class="wbox">Staff login access will be revoked and marked <strong>Inactive</strong>. Personnel file data is <strong>retained</strong> for audit purposes. This cannot be undone.</div>
+    <input type="hidden" id="delId">
+  </div>
+  <div class="mf"><button class="bcan" onclick="CM('mDEL')">Cancel</button><button class="bdng" onclick="confDel()">Remove Account</button></div>
+</div></div>
+<script>
+// ── DATA DEFINITIONS ──
+const POS=['Medical Doctor','Specialist Doctor','Nurse','Midwife','Pharmacist','Laboratory Technician','Radiographer','Physiotherapist','Dentist','Accountant','Medical Equipment Engineer','Mechanician','Administrator','Finance Officer','Driver','Security','Cleaner/Support','Other'];
+const DEPT=['General Medicine','ICU','NICU','Pediatrics','Maternity / MCH','Gynecology','Surgery','Operating Theatre (OT)','OPD','Emergency','Pharmacy','Laboratory','Radiology','Blood Bank','Dialysis','ENT','Oral Health','Mental Health','NCD','Hepatitis','Tuberculosis','PMRS','OI/ART','Ambulance','Technical Office','Administration','Finance','IPC','Digital','Other'];
+const EDUS=["PhD / Doctorate","Master's Degree","Bachelor's Degree","Diploma (Advanced)","Diploma","Certificate","Secondary School"];
+const ETYPES=['Permanent (Civil Servant)','Contract','Part-time','Volunteer','Intern'];
+const HBV_OPT=['Fully Vaccinated (3 doses)','Partially Vaccinated','Not Vaccinated','Immune (prior infection)','Unknown'];
+const TITER_OPT=['Positive (≥10 mIU/mL)','Negative (<10 mIU/mL)','Not Tested'];
+const COVID_OPT=['Fully Vaccinated + Booster','Fully Vaccinated','Partially Vaccinated','Not Vaccinated'];
+const CDOCS=[{id:'diploma',name:'Diploma / Degree',icon:'🎓',req:true,note:'Highest academic qualification'},{id:'license',name:'Professional License',icon:'📜',req:true,note:'Council registration',exp:true},{id:'specialist_cert',name:'Specialist Certificate',icon:'🏅',req:false,note:'Specialty certificate'},{id:'med_council',name:'Council Card',icon:'🪪',req:true,note:'Council registration card'}];
+const SDOCS=[{id:'national_id',name:'National ID',icon:'🪪',req:true,note:'National identification card'},{id:'birth_cert',name:'Birth Certificate',icon:'📋',req:false,note:'Official birth registration'},{id:'photo_3x4',name:'Staff Photo (3×4)',icon:'🖼️',req:true,note:'Formal recent photo'},{id:'cv_resume',name:'CV / Resume',icon:'📄',req:true,note:'Curriculum Vitae'}];
+const EDOCS=[{id:'appointment_letter',name:'Appointment Letter',icon:'📨',req:true,note:'Official appointment letter'},{id:'contract',name:'Employment Contract',icon:'📝',req:true,note:'Signed employment agreement'},{id:'job_description',name:'Job Description',icon:'📋',req:true,note:'Signed JD document'},{id:'appraisal_form',name:'Latest Appraisal Form',icon:'📊',req:true,note:'Most recent performance review'},{id:'disciplinary',name:'Disciplinary Records',icon:'⚠️',req:false,note:'Confidential — if any'}];
+const HDOCS=[{id:'hbv_card',name:'HBV Vaccination Card',icon:'💉',req:true,note:'Hepatitis B vaccination record'},{id:'annual_health',name:'Annual Health Check',icon:'🩺',req:true,note:'Occupational health screening',exp:true},{id:'covid_cert',name:'COVID-19 Certificate',icon:'🦠',req:false,note:'Vaccination certificate'},{id:'tb_screening',name:'TB Screening',icon:'🫁',req:false,note:'Annual TB screening'}];
+const H7=[
+  {l:'Personal Information',d:'Name, DOB, gender, national ID, contact',c:s=>!!(s.firstName&&s.lastName&&s.dob&&s.nationalId)},
+  {l:'Staff Photograph',d:'3×4 or digital photo on file',c:s=>!!(s.docs&&s.docs.photo_3x4)},
+  {l:'CV / Resume',d:'Current curriculum vitae',c:s=>!!(s.docs&&s.docs.cv_resume)},
+  {l:'Diploma / Academic Qualification',d:'Highest academic qualification document',c:s=>!!(s.docs&&s.docs.diploma)},
+  {l:'Professional License/Registration',d:'Council registration document + number',c:s=>!!(s.docs&&s.docs.license)&&!!s.councilNo},
+  {l:'License Not Expired',d:'License expiry date is current',c:s=>{if(!s.licenseExpiry)return false;return new Date(s.licenseExpiry)>=new Date();}},
+  {l:'Employment Contract / Appointment',d:'Signed contract or appointment letter',c:s=>!!(s.docs&&(s.docs.contract||s.docs.appointment_letter))},
+  {l:'Job Description',d:'Signed job description document',c:s=>!!(s.docs&&s.docs.job_description)},
+  {l:'Performance Appraisal',d:'At least one appraisal on record',c:s=>!!(s.appraisals&&s.appraisals.length>0)},
+  {l:'HBV Vaccination Record',d:'Hepatitis B vaccination status documented',c:s=>!!(s.hbvStatus&&s.hbvStatus!==''&&s.hbvStatus!=='Unknown')},
+  {l:'Training Records',d:'At least one training record on file',c:s=>!!(s.trainings&&s.trainings.length>0)},
+  {l:'National ID Copy',d:'Copy of valid national identification',c:s=>!!(s.docs&&s.docs.national_id)},
+];
+// ── STATE ──
+let CU=null,SDB=[],UDB=[],AID=null,TTC=null,curSec='overview',GU='https://script.google.com/macros/s/AKfycbz6zgLfF-Y9df7YfbVa1yDOJJUvrmar4seCf2hKx76sRzliwCbVXIXbSH8DCKgPOWo/exec';
+// ── SECURITY GUARDS ──
+function isAdmin(){return CU&&CU.role==='admin';}
+// Returns true only if the current staff user owns the given staff record id
+function ownsFile(id){
+  if(!CU||CU.role!=='staff')return false;
+  const s=SDB.find(x=>x.id===id);
+  return s&&s.linkedUserId===CU.id;
+}
+// Returns the active staff record only if current user is allowed to access it
+function getStaffGuarded(id){
+  if(isAdmin())return SDB.find(x=>x.id===id)||null;
+  if(ownsFile(id))return SDB.find(x=>x.id===id)||null;
+  toast('Access denied: you can only view your own file.','err');
+  return null;
+}
+// Ensure AID always belongs to current user when role=staff
+function guardAID(){
+  if(isAdmin())return true;
+  if(CU&&CU.role==='staff'){
+    const s=SDB.find(x=>x.linkedUserId===CU.id);
+    if(!s){toast('No file linked to your account.','err');return false;}
+    if(AID!==s.id){AID=s.id;}// silently correct
+    return true;
+  }
+  return false;
+}
+// ── INIT ──
+window.onload=()=>{
+  ['ns_pos','ns_dept'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const src=id==='ns_pos'?POS:DEPT;src.forEach(v=>{const o=document.createElement('option');o.value=o.textContent=v;el.appendChild(o);});});
+  document.getElementById('dashDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const lErr=document.getElementById('lErr');
+  lErr.textContent='Syncing data…';lErr.style.color='var(--teal)';
+  loadFromGAS().then(()=>{
+    lErr.textContent='';lErr.style.color='var(--red)';
+  }).catch(err=>{
+    // GAS unreachable — use localStorage as fallback
+    loadFromLocal();
+    lErr.textContent='';lErr.style.color='var(--red)';
+    console.warn('GAS sync failed, using local data:',err);
+  });
+};
+
+function loadFromLocal(){
+  SDB=JSON.parse(localStorage.getItem('kcph_staff')||'[]');
+  UDB=JSON.parse(localStorage.getItem('kcph_users')||'[]');
+  ensureDefaultAdmin();
+}
+
+function ensureDefaultAdmin(){
+  if(!UDB.find(x=>x.role==='admin'&&x.active!==false&&x.active!=='false'&&x.active!=='FALSE')){
+    UDB.unshift({id:'admin_root',username:'admin',password:'admin123',name:'Administrator',role:'admin',active:true,createdAt:new Date().toISOString()});
+    saveU();
+  }
+}
+
+async function loadFromGAS(){
+  // GAS GET redirects — must follow redirect, no-cors blocks it so use cors mode
+  const res=await fetch(GU,{method:'GET',redirect:'follow',mode:'cors'});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  const data=await res.json();
+  if(data.status!=='ok')throw new Error(data.message||'GAS error');
+
+  const gasUsers=data.users||[];
+  const gasStaff=data.staff||[];
+
+  // Load local data to preserve binary files (docs, trainings, appraisals)
+  const localStaff=JSON.parse(localStorage.getItem('kcph_staff')||'[]');
+  const localUsers=JSON.parse(localStorage.getItem('kcph_users')||'[]');
+
+  // Build UDB from GAS — normalise the active field (Sheets returns TRUE/FALSE strings)
+  if(gasUsers.length>0){
+    UDB=gasUsers.map(u=>({
+      id:         u.id        ||'',
+      username:   u.username  ||'',
+      password:   u.password  ||'',
+      name:       u.name      ||'',
+      role:       u.role      ||'staff',
+      linkedStaff:u.linkedStaff||'',
+      active:     u.active===true||u.active==='true'||u.active==='TRUE'||u.active===1,
+      createdAt:  u.createdAt ||''
+    }));
+  } else {
+    UDB=localUsers;
+  }
+  ensureDefaultAdmin();
+
+  // Build SDB — GAS gives metadata; merge binary data from localStorage
+  // Also rebuild linkedUserId from Users sheet (linkedStaff points to staff id)
+  if(gasStaff.length>0){
+    SDB=gasStaff.map(gs=>{
+      const ls=localStaff.find(x=>x.id===gs.id)||{};
+      // Find the user whose linkedStaff matches this staff id
+      const linkedUser=UDB.find(u=>u.linkedStaff===gs.id);
+      return Object.assign({},gs,{
+        linkedUserId: linkedUser?linkedUser.id:(ls.linkedUserId||''),
+        docs:         ls.docs      ||{},
+        docExpiry:    ls.docExpiry ||{},
+        trainings:    ls.trainings ||[],
+        appraisals:   ls.appraisals||[]
+      });
+    });
+  } else {
+    SDB=localStaff;
+  }
+
+  saveS();saveU();
+}
+function saveS(){try{localStorage.setItem('kcph_staff',JSON.stringify(SDB));}catch(e){toast('Storage limit! Remove attachments or sync to GAS.','err');}}
+function saveU(){localStorage.setItem('kcph_users',JSON.stringify(UDB));}
+// ── AUTH ──
+function doLogin(){
+  const u=document.getElementById('lUser').value.trim(),p=document.getElementById('lPass').value;
+  if(!u||!p){document.getElementById('lErr').textContent='Enter username and password.';return;}
+  // If UDB still empty (GAS hasn't loaded yet), try local then attempt login
+  if(!UDB.length)loadFromLocal();
+  const usr=UDB.find(x=>
+    x.username===u &&
+    x.password===p &&
+    (x.active===true||x.active==='true'||x.active==='TRUE'||x.active===1||x.active===undefined)
+  );
+  if(!usr){document.getElementById('lErr').textContent='Invalid username or password.';return;}
+  CU=usr;
+  document.getElementById('LS').style.display='none';
+  document.getElementById('APP').classList.remove('hidden');
+  document.getElementById('tbAv').textContent=(usr.name||usr.username)[0].toUpperCase();
+  document.getElementById('tbName').textContent=usr.name||usr.username;
+  const rp=document.getElementById('tbRole');rp.textContent=usr.role==='admin'?'ADMIN':'STAFF';rp.className='trole '+(usr.role==='admin'?'role-admin':'role-staff');
+  if(usr.role==='admin'){
+    document.getElementById('adminNav').classList.remove('hidden');document.getElementById('staffNav').classList.add('hidden');
+    document.getElementById('btnNS').classList.remove('hidden');
+    showPanel('dashboard');renderDash();renderSB();
+  } else {
+    document.getElementById('adminNav').classList.add('hidden');document.getElementById('staffNav').classList.remove('hidden');
+    document.getElementById('btnNS').classList.add('hidden');
+    // Match staff record by linkedUserId or by linkedStaff on the user object
+    const s=SDB.find(x=>x.linkedUserId===usr.id||x.linkedUserId===usr.linkedStaff);
+    if(s){AID=s.id;showSOPanel();}
+    else{showPanel('staffown');document.getElementById('soContent').innerHTML='<div class="ibox" style="margin-top:18px;">⚠️ No personnel file linked to your account. Please contact the administrator.</div>';}
+  }
+}
+function doLogout(){CU=null;AID=null;document.getElementById('LS').style.display='flex';document.getElementById('APP').classList.add('hidden');document.getElementById('lUser').value='';document.getElementById('lPass').value='';document.getElementById('lErr').textContent='';}
+// ── NAV ──
+const ADMIN_PANELS=['dashboard','usermgmt','expiry','audit','export','profile'];
+function showPanel(id){
+  // Staff users may only reach staffown panel
+  if(!isAdmin()&&ADMIN_PANELS.includes(id)){
+    toast('Access denied.','err');
+    showSOPanel();return;
+  }
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const p=document.getElementById('panel-'+id);if(p)p.classList.add('active');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const n=document.getElementById('nav-'+id);if(n)n.classList.add('active');
+  if(id==='dashboard')renderDash();
+  if(id==='usermgmt')renderUList();
+  if(id==='expiry')renderExpiry(60);
+  if(id==='audit')renderAudit();
+}
+function showTab(id){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ti').forEach(t=>t.classList.remove('active'));
+  const tc=document.getElementById('tab-'+id);if(tc)tc.classList.add('active');
+  document.querySelectorAll('.ti').forEach(t=>{if(t.getAttribute('onclick')&&t.getAttribute('onclick').includes("'"+id+"'"))t.classList.add('active');});
+  if(id==='hr7check')renderH7('#pc-hr7check');
+}
+// ── DASHBOARD ──
+function renderDash(){
+  const a=SDB.filter(s=>!s.inactive),t=a.length;
+  const c=a.filter(s=>h7score(s)===100).length;
+  document.getElementById('s-tot').textContent=t;document.getElementById('s-cmp').textContent=c;
+  document.getElementById('s-inc').textContent=t-c;document.getElementById('s-exp').textContent=getExp(30).length;
+  const dts=[{l:'Diploma/Credentials',f:s=>!!(s.docs&&s.docs.diploma)},{l:'Professional License',f:s=>!!(s.docs&&s.docs.license)},{l:'National ID',f:s=>!!(s.docs&&s.docs.national_id)},{l:'Employment Contract',f:s=>!!(s.docs&&(s.docs.contract||s.docs.appointment_letter))},{l:'HBV Vaccination',f:s=>!!(s.hbvStatus&&s.hbvStatus!=='Unknown'&&s.hbvStatus!=='')},{l:'Performance Appraisal',f:s=>!!(s.appraisals&&s.appraisals.length>0)}];
+  document.getElementById('compBars').innerHTML=dts.map(dt=>{const cnt=t?a.filter(dt.f).length:0,pct=t?Math.round(cnt/t*100):0;return`<div class="cb"><div class="cb-h"><span class="cb-n">${dt.l}</span><span class="cb-p">${pct}%</span></div><div class="cb-t"><div class="cb-f ${pct<50?'d':pct<80?'w':''}" style="width:${pct}%"></div></div></div>`;}).join('');
+  const exps=getExp(60).slice(0,8);
+  document.getElementById('expList').innerHTML=exps.length?exps.map(e=>`<div class="ei${e.days<=14?' urg':''}"><div style="flex:1"><div class="ei-n">${e.nm}</div><div class="ei-d">${e.lbl}</div></div><div class="ei-dt">${e.days}d · ${e.ds}</div></div>`).join(''):'<div style="color:var(--gray3);font-size:11px;text-align:center;padding:14px;">No expiring docs in 60 days.</div>';
+}
+// ── SIDEBAR ──
+function renderSB(){
+  const l=document.getElementById('stList');if(!l)return;
+  const q=(document.getElementById('sbSrch')?.value||'').toLowerCase();
+  const f=SDB.filter(s=>!s.inactive&&((s.firstName+' '+s.lastName).toLowerCase().includes(q)||(s.department||'').toLowerCase().includes(q)));
+  l.innerHTML=f.length?f.map(s=>{const sc=h7score(s);const dc=sc===100?'d-ok':sc>=50?'d-par':'d-mis';return`<div class="si${s.id===AID?' active':''}" onclick="openProf('${s.id}')"><div class="si-av">${((s.firstName||'?')[0]+(s.lastName||'?')[0]).toUpperCase()}</div><div class="si-i"><div class="si-n">${s.firstName} ${s.lastName}</div><div class="si-d">${s.position||'—'}</div></div><div class="si-dot ${dc}"></div></div>`;}).join(''):'<div style="font-size:11px;color:var(--gray3);padding:9px;text-align:center;">No staff found</div>';
+}
+function filterStaff(){renderSB();}
+// ── USER MANAGEMENT ──
+function renderUList(){
+  const el=document.getElementById('uList');if(!el)return;
+  el.innerHTML=UDB.map(u=>{
+    const lk=u.role==='staff'?SDB.find(s=>s.linkedUserId===u.id):null;
+    const sc=lk?h7score(lk):null,ina=u.active===false;
+    return`<div class="uc" style="${ina?'opacity:.5;':''}"><div class="uav ${u.role==='admin'?'adm':''}">${(u.name||u.username)[0].toUpperCase()}</div><div class="ui"><div class="un">${u.name||u.username}${ina?' <span class="pill p-r">Inactive</span>':''}</div><div class="um">@${u.username} · ${u.role==='admin'?'Administrator':'Staff'}${lk?' · '+lk.position+' · '+lk.department:''}${sc!==null?' · HR.7: <b>'+sc+'%</b>':''}</div></div><span class="pill ${u.role==='admin'?'p-au':'p-b'}">${u.role==='admin'?'ADMIN':'STAFF'}</span><div class="ua">${lk?`<button class="bs t" onclick="openProf('${lk.id}')">Open File</button>`:''}${!ina?`<button class="bs g" onclick="openCPW('${u.id}')">🔑 Pwd</button>`:''}${u.id!=='admin_root'&&!ina?`<button class="bs r" onclick="promptDel('${u.id}')">Remove</button>`:''}</div></div>`;
+  }).join('')||'<div style="color:var(--gray3);text-align:center;padding:28px;">No users.</div>';
+}
+function openNAM(){document.getElementById('mNA').classList.add('open');}
+function addAdmin(){
+  const n=document.getElementById('na_nm').value.trim(),u=document.getElementById('na_un').value.trim(),p=document.getElementById('na_pw').value;
+  if(!n||!u||!p){toast('Fill all fields.','err');return;}if(p.length<8){toast('Password min 8 chars.','err');return;}
+  if(UDB.find(x=>x.username===u)){toast('Username exists.','err');return;}
+  UDB.push({id:'adm_'+Date.now(),username:u,password:p,name:n,role:'admin',active:true,createdAt:new Date().toISOString()});
+  saveU();CM('mNA');renderUList();toast('Admin created: @'+u);
+  syncGAS('new_user',{userId:UDB[UDB.length-1].id,username:u,password:p,name:n,role:'admin',staffId:''});
+  ['na_nm','na_un','na_pw'].forEach(id=>document.getElementById(id).value='');
+}
+function openCPW(uid){document.getElementById('cpwUid').value=uid;document.getElementById('cpw1').value='';document.getElementById('cpw2').value='';document.getElementById('mCPW').classList.add('open');}
+function doCPW(){
+  const uid=document.getElementById('cpwUid').value,p1=document.getElementById('cpw1').value,p2=document.getElementById('cpw2').value;
+  if(p1.length<6){toast('Min 6 chars.','err');return;}if(p1!==p2){toast('Passwords do not match.','err');return;}
+  const u=UDB.find(x=>x.id===uid);if(u){u.password=p1;saveU();CM('mCPW');toast('Password updated.');
+  syncGAS('new_user',{userId:u.id,username:u.username,password:p1,name:u.name,role:u.role,staffId:u.linkedStaff||''});}
+}
+function promptDel(uid){const u=UDB.find(x=>x.id===uid);if(!u)return;document.getElementById('delName').textContent=u.name||u.username;document.getElementById('delId').value=uid;document.getElementById('mDEL').classList.add('open');}
+function promptDelFromProfile(){
+  // Called from the profile header Remove Staff button
+  if(!isAdmin()){toast('Admin only.','err');return;}
+  const s=SDB.find(x=>x.id===AID);if(!s){toast('No staff selected.','err');return;}
+  const u=UDB.find(x=>x.id===s.linkedUserId);
+  if(!u){
+    // No linked user account — just mark staff inactive directly
+    document.getElementById('delName').textContent=s.firstName+' '+s.lastName+' (no login account)';
+    document.getElementById('delId').value='__staff_only__'+s.id;
+    document.getElementById('mDEL').classList.add('open');return;
+  }
+  promptDel(u.id);
+}
+function confDel(){
+  const raw=document.getElementById('delId').value;
+  if(raw.startsWith('__staff_only__')){
+    const sid=raw.replace('__staff_only__','');
+    const s=SDB.find(x=>x.id===sid);if(s){s.inactive=true;saveS();}
+    CM('mDEL');renderUList();renderSB();renderDash();
+    if(AID===sid){AID=null;showPanel('dashboard');}
+    syncGAS('remove_staff',{staffId:sid,removedAt:new Date().toISOString()});
+    toast('Staff removed. File data retained.','wrn');return;
+  }
+  const uid=raw,u=UDB.find(x=>x.id===uid);
+  if(u){u.active=false;const s=SDB.find(x=>x.linkedUserId===uid);if(s){s.inactive=true;saveS();if(AID===s.id){AID=null;}syncGAS('remove_staff',{staffId:s.id,userId:uid,removedAt:new Date().toISOString()});}saveU();}
+  CM('mDEL');renderUList();renderSB();renderDash();
+  if(AID===null)showPanel('dashboard');
+  toast('Account removed. File data retained.','wrn');
+}
+// ── NEW STAFF ──
+function openNSM(){document.getElementById('mNS').classList.add('open');}
+function addStaff(){
+  const fn=document.getElementById('ns_fn').value.trim(),ln=document.getElementById('ns_ln').value.trim(),pos=document.getElementById('ns_pos').value,dept=document.getElementById('ns_dept').value,un=document.getElementById('ns_un').value.trim(),pw=document.getElementById('ns_pw').value;
+  if(!fn||!ln||!pos||!dept||!un||!pw){toast('Fill all required fields.','err');return;}if(pw.length<6){toast('Password min 6 chars.','err');return;}
+  if(UDB.find(u=>u.username===un)){toast('Username already exists.','err');return;}
+  const sid='st_'+Date.now(),uid='us_'+Date.now();
+  UDB.push({id:uid,username:un,password:pw,name:fn+' '+ln,role:'staff',active:true,createdAt:new Date().toISOString()});saveU();
+  SDB.push({id:sid,linkedUserId:uid,firstName:fn,lastName:ln,position:pos,department:dept,docs:{},docExpiry:{},trainings:[],appraisals:[],createdAt:new Date().toISOString()});saveS();
+  CM('mNS');['ns_fn','ns_ln','ns_un','ns_pw'].forEach(i=>document.getElementById(i).value='');document.getElementById('ns_pos').value='';document.getElementById('ns_dept').value='';
+  renderSB();renderDash();renderUList();openProf(sid);toast(`Account created: ${fn} ${ln} · @${un}`);
+  syncGAS('new_user',{userId:uid,username:un,password:pw,name:fn+' '+ln,role:'staff',staffId:sid});
+}
+// ── PROFILE ──
+const PTABS=`<div class="tab-content active" id="tab-personal"><div id="pc-personal"></div></div><div class="tab-content" id="tab-credentials"><div id="pc-credentials"></div></div><div class="tab-content" id="tab-documents"><div id="pc-documents"></div></div><div class="tab-content" id="tab-training"><div id="pc-training"></div></div><div class="tab-content" id="tab-employment"><div id="pc-employment"></div></div><div class="tab-content" id="tab-health"><div id="pc-health"></div></div><div class="tab-content" id="tab-hr7check"><div id="pc-hr7check"></div></div>`;
+function openProf(id){
+  // Staff users are redirected to their own file only
+  if(!isAdmin()){
+    const myS=SDB.find(x=>x.linkedUserId===CU.id);
+    if(!myS||myS.id!==id){toast('Access denied: you can only view your own file.','err');showSOPanel();return;}
+  }
+  AID=id;const s=SDB.find(x=>x.id===id);if(!s)return;
+  document.getElementById('profTabs').innerHTML=PTABS;showPanel('profile');renderSB();
+  document.getElementById('profAv').innerHTML=((s.firstName||'?')[0]+(s.lastName||'?')[0]).toUpperCase();
+  document.getElementById('profNm').textContent=(s.firstName||'')+' '+(s.lastName||'');
+  document.getElementById('profPos').textContent=[s.position,s.department].filter(Boolean).join(' · ')||'—';
+  const u=UDB.find(x=>x.id===s.linkedUserId);
+  document.getElementById('profTags').innerHTML=[s.staffId?`<span class="ph-tag">${s.staffId}</span>`:'',u?`<span class="ph-tag">@${u.username}</span>`:'',s.empType?`<span class="ph-tag">${s.empType}</span>`:'',s.dateHired?`<span class="ph-tag">Hired: ${s.dateHired}</span>`:'',s.inactive?'<span class="ph-tag" style="background:rgba(192,57,43,.3)">INACTIVE</span>':''].join('');
+  rPersonal(s,'pc-personal',false);rCred(s,'pc-credentials',false);rDocs(s,'pc-documents',false);rTraining(s,'pc-training',false);rEmp(s,'pc-employment',false);rHealth(s,'pc-health',false);
+  updBadges(s);showTab('personal');
+  // Show/hide Remove Staff button based on inactive status
+  const btnR=document.getElementById('btnRemoveStaff');
+  if(btnR)btnR.style.display=s.inactive?'none':'flex';
+}
+function updBadges(s){
+  const cm=CDOCS.filter(d=>d.req&&!(s.docs&&s.docs[d.id])).length;
+  const cb=document.getElementById('badge-cred');if(cb){cb.textContent=cm||'✓';cb.className='tb'+(cm?' miss':'');if(!cm){cb.style.background='rgba(26,122,74,.15)';cb.style.color='var(--green)';}}
+  const bd=document.getElementById('badge-docs');if(bd)bd.textContent=Object.keys(s.docs||{}).filter(k=>!k.endsWith('_name')).length;
+  const bt=document.getElementById('badge-trn');if(bt)bt.textContent=(s.trainings||[]).length;
+}
+function saveProfile(){
+  if(!guardAID())return;
+  const s=SDB.find(x=>x.id===AID);if(!s)return;rdForm(s);saveS();renderSB();updBadges(s);
+  document.getElementById('profNm').textContent=(s.firstName||'')+' '+(s.lastName||'');
+  document.getElementById('profPos').textContent=[s.position,s.department].filter(Boolean).join(' · ')||'—';
+  toast('Profile saved.');syncGAS('staff',s);
+}
+function rdForm(s){
+  ['firstName','lastName','khmerName','dob','gender','nationalId','phone','address','position','department','councilNo','licenseExpiry','education','specialization','staffId','empType','dateHired','contractEnd','jobDesc','notes','hbvStatus','hbvDate','hbvTiter','hbvTiterDate','covidStatus','healthCheck','healthNotes'].forEach(f=>{const el=document.getElementById('f_'+f);if(el)s[f]=el.value;});
+}
+// ── RENDER HELPERS ──
+function fv(s,k){return(s[k]||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function sel(arr,v){return arr.map(x=>`<option${v===x?' selected':''}>${x}</option>`).join('');}
+function rPersonal(s,cid,ro){
+  const d=document.getElementById(cid);if(!d)return;const rv=ro?'disabled':'';
+  d.innerHTML=`<div class="fs"><div class="fs-t">🪪 Personal Information</div>
+  <div class="fr t3"><div class="fg"><label class="fl">First Name<span class="req">*</span></label><input class="fc" id="f_firstName" value="${fv(s,'firstName')}" ${rv}></div><div class="fg"><label class="fl">Last Name<span class="req">*</span></label><input class="fc" id="f_lastName" value="${fv(s,'lastName')}" ${rv}></div><div class="fg"><label class="fl">Khmer Name</label><input class="fc" id="f_khmerName" value="${fv(s,'khmerName')}" ${rv} placeholder="ឈ្មោះ"></div></div>
+  <div class="fr"><div class="fg"><label class="fl">Date of Birth<span class="req">*</span></label><input class="fc" type="date" id="f_dob" value="${fv(s,'dob')}" ${rv}></div><div class="fg"><label class="fl">Gender</label><select class="fc" id="f_gender" ${rv}><option value="">—</option>${sel(['Male','Female','Other'],s.gender)}</select></div></div>
+  <div class="fr"><div class="fg"><label class="fl">National ID / Passport</label><input class="fc" id="f_nationalId" value="${fv(s,'nationalId')}" ${rv} placeholder="ID number"></div><div class="fg"><label class="fl">Phone</label><input class="fc" id="f_phone" value="${fv(s,'phone')}" ${rv} placeholder="+855…"></div></div>
+  <div class="fr s1"><div class="fg"><label class="fl">Home Address</label><textarea class="fc" id="f_address" ${rv}>${s.address||''}</textarea></div></div></div>
+  <div class="fs"><div class="fs-t">📸 Staff Photo</div>
+  <div class="doc-card ${s.docs&&s.docs.photo_3x4?'hf':''}" style="width:148px;margin:0" ${!ro?'onclick="document.getElementById(\'idpFile\').click()"':''}>
+  <input type="file" id="idpFile" accept="image/*" capture="user" ${ro?'disabled':''} onchange="uploadIdPhoto(event)">
+  <span class="doc-ic" id="idpPrev">${s.docs&&s.docs.photo_3x4?'<img src="'+s.docs.photo_3x4+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover;">':'🖼️'}</span>
+  <div class="doc-nm">Staff Photo</div><div class="doc-sub">${ro?'On file':'Shoot or upload'}</div></div></div>`;
+}
+function rCred(s,cid,ro){
+  const d=document.getElementById(cid);if(!d)return;const rv=ro?'disabled':'';
+  d.innerHTML=`<div class="fs"><div class="fs-t">🏅 Position &amp; Credentials</div>
+  <div class="fr"><div class="fg"><label class="fl">Position<span class="req">*</span></label><select class="fc" id="f_position" ${rv}><option value="">—</option>${sel(POS,s.position)}</select></div><div class="fg"><label class="fl">Department</label><select class="fc" id="f_department" ${rv}><option value="">—</option>${sel(DEPT,s.department)}</select></div></div>
+  <div class="fr"><div class="fg"><label class="fl">Council No.</label><input class="fc" id="f_councilNo" value="${fv(s,'councilNo')}" ${rv} placeholder="e.g. MC-12345"></div><div class="fg"><label class="fl">License Expiry</label><input class="fc" type="date" id="f_licenseExpiry" value="${fv(s,'licenseExpiry')}" ${rv}></div></div>
+  <div class="fr"><div class="fg"><label class="fl">Education Level</label><select class="fc" id="f_education" ${rv}><option value="">—</option>${sel(EDUS,s.education)}</select></div><div class="fg"><label class="fl">Specialization</label><input class="fc" id="f_specialization" value="${fv(s,'specialization')}" ${rv} placeholder="e.g. Internal Medicine"></div></div></div>
+  <div class="fs"><div class="fs-t">📎 Credential Documents (HR.7)</div><div class="doc-grid">${CDOCS.map(doc=>dcCard(doc,s,ro)).join('')}</div></div>`;
+  if(!ro)CDOCS.forEach(d=>attachDoc(d.id));
+}
+function rDocs(s,cid,ro){
+  const d=document.getElementById(cid);if(!d)return;
+  d.innerHTML=`<div class="fs"><div class="fs-t">📁 Supporting Documents</div><div class="doc-grid">${SDOCS.map(doc=>dcCard(doc,s,ro)).join('')}</div></div>`;
+  if(!ro)SDOCS.forEach(d=>attachDoc(d.id));
+}
+function rTraining(s,cid,ro){
+  const d=document.getElementById(cid);if(!d)return;const cols=ro?6:7;
+  const rows=(s.trainings||[]).map((t,i)=>`<tr><td>${t.title}</td><td>${t.provider||'—'}</td><td>${t.date||'—'}</td><td>${t.hours?t.hours+'h':'—'}</td><td>${t.type||'—'}</td><td>${t.hasCert?'<span style="color:var(--green)">✓</span>':'—'}</td>${!ro?`<td><button class="bs r" onclick="rmTr(${i})">Remove</button></td>`:''}</tr>`).join('')||`<tr><td colspan="${cols}" style="text-align:center;color:var(--gray3);padding:16px;">No training records.</td></tr>`;
+  const certs=(s.trainings||[]).filter(t=>t.hasCert);
+  d.innerHTML=`<div class="tw"><div class="th2"><h4>🎓 Training &amp; CME</h4>${!ro?'<button class="btn-add" onclick="document.getElementById(\'mTR\').classList.add(\'open\')">＋ Add</button>':''}</div><table><thead><tr><th>Title</th><th>Provider</th><th>Date</th><th>Duration</th><th>Type</th><th>Cert</th>${!ro?'<th>Action</th>':''}</tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="fs"><div class="fs-t">📜 Training Certificate Placeholders</div><div class="doc-grid">${certs.length?certs.map(t=>`<div class="doc-card hf ro"><span class="dbadge dbOK">✓ Filed</span><span class="doc-ic">📜</span><div class="doc-nm">${t.title}</div><div class="doc-sub">${t.provider||''} · ${t.date||''}</div><div class="doc-fn">Certificate on record</div></div>`).join(''):'<div style="font-size:10px;color:var(--gray3);">No certs yet.</div>'}</div></div>`;
+}
+function rEmp(s,cid,ro){
+  const d=document.getElementById(cid);if(!d)return;const rv=ro?'disabled':'';
+  const aprs=(s.appraisals||[]).map((a,i)=>{const c={Excellent:'var(--green)',Good:'var(--teal)',Satisfactory:'var(--blue)','Needs Improvement':'var(--gold)',Unsatisfactory:'var(--red)'}[a.rating]||'var(--gray4)';return`<tr><td>${a.year}</td><td>${a.period}</td><td>${a.score?a.score+'%':'—'}</td><td><span style="color:${c};font-weight:600">${a.rating}</span></td><td>${a.appraiser||'—'}</td>${!ro?`<td><button class="bs r" onclick="rmAP(${i})">Remove</button></td>`:''}</tr>`;}).join('')||`<tr><td colspan="${ro?5:6}" style="text-align:center;color:var(--gray3);padding:14px;">No appraisals.</td></tr>`;
+  d.innerHTML=`<div class="fs"><div class="fs-t">📝 Employment Details</div>
+  <div class="fr"><div class="fg"><label class="fl">Staff ID</label><input class="fc" id="f_staffId" value="${fv(s,'staffId')}" ${rv} placeholder="e.g. KCPH-2024-001"></div><div class="fg"><label class="fl">Employment Type</label><select class="fc" id="f_empType" ${rv}><option value="">—</option>${sel(ETYPES,s.empType)}</select></div></div>
+  <div class="fr"><div class="fg"><label class="fl">Date Hired<span class="req">*</span></label><input class="fc" type="date" id="f_dateHired" value="${fv(s,'dateHired')}" ${rv}></div><div class="fg"><label class="fl">Contract End Date</label><input class="fc" type="date" id="f_contractEnd" value="${fv(s,'contractEnd')}" ${rv}></div></div>
+  <div class="fr s1"><div class="fg"><label class="fl">Job Description Summary</label><textarea class="fc" id="f_jobDesc" ${rv}>${s.jobDesc||''}</textarea></div></div>
+  <div class="fr s1"><div class="fg"><label class="fl">Notes</label><textarea class="fc" id="f_notes" ${rv}>${s.notes||''}</textarea></div></div></div>
+  <div class="fs"><div class="fs-t">📋 Employment Documents</div><div class="doc-grid">${EDOCS.map(doc=>dcCard(doc,s,ro)).join('')}</div></div>
+  <div class="tw"><div class="th2"><h4>📊 Performance Appraisals</h4>${!ro?'<button class="btn-add" onclick="document.getElementById(\'mAP\').classList.add(\'open\')">＋ Add</button>':''}</div>
+  <table><thead><tr><th>Year</th><th>Period</th><th>Score</th><th>Rating</th><th>Appraiser</th>${!ro?'<th>Action</th>':''}</tr></thead><tbody>${aprs}</tbody></table></div>`;
+  if(!ro)EDOCS.forEach(d=>attachDoc(d.id));
+}
+function rHealth(s,cid,ro){
+  const d=document.getElementById(cid);if(!d)return;const rv=ro?'disabled':'';
+  d.innerHTML=`<div class="fs"><div class="fs-t">💉 Occupational Health Records</div>
+  <div class="fr"><div class="fg"><label class="fl">HBV Status<span class="req">*</span></label><select class="fc" id="f_hbvStatus" ${rv}><option value="">—</option>${sel(HBV_OPT,s.hbvStatus)}</select></div><div class="fg"><label class="fl">HBV Last Dose Date</label><input class="fc" type="date" id="f_hbvDate" value="${fv(s,'hbvDate')}" ${rv}></div></div>
+  <div class="fr"><div class="fg"><label class="fl">Anti-HBs Titer</label><select class="fc" id="f_hbvTiter" ${rv}><option value="">—</option>${sel(TITER_OPT,s.hbvTiter)}</select></div><div class="fg"><label class="fl">Titer Test Date</label><input class="fc" type="date" id="f_hbvTiterDate" value="${fv(s,'hbvTiterDate')}" ${rv}></div></div>
+  <div class="fr"><div class="fg"><label class="fl">COVID-19 Vaccination</label><select class="fc" id="f_covidStatus" ${rv}><option value="">—</option>${sel(COVID_OPT,s.covidStatus)}</select></div><div class="fg"><label class="fl">Annual Health Check Date</label><input class="fc" type="date" id="f_healthCheck" value="${fv(s,'healthCheck')}" ${rv}></div></div>
+  <div class="fr s1"><div class="fg"><label class="fl">Health Remarks</label><textarea class="fc" id="f_healthNotes" ${rv}>${s.healthNotes||''}</textarea></div></div></div>
+  <div class="fs"><div class="fs-t">📎 Health Documents</div><div class="doc-grid">${HDOCS.map(doc=>dcCard(doc,s,ro)).join('')}</div></div>`;
+  if(!ro)HDOCS.forEach(d=>attachDoc(d.id));
+}
+// ── STAFF OWN PANEL ──
+function showSOPanel(){
+  showPanel('staffown');const s=SDB.find(x=>x.id===AID);if(!s)return;
+  document.getElementById('soName').textContent=(s.firstName||'')+' '+(s.lastName||'')+' · '+[s.position,s.department].filter(Boolean).join(', ');
+  document.getElementById('soAv').textContent=((s.firstName||'?')[0]+(s.lastName||'?')[0]).toUpperCase();
+  showSec(curSec||'overview');
+}
+function showSec(sec){
+  // Always enforce staff users can only see their own file
+  if(CU&&CU.role==='staff'){
+    const myS=SDB.find(x=>x.linkedUserId===CU.id);
+    if(myS)AID=myS.id;
+  }
+  curSec=sec;
+  document.querySelectorAll('#staffNav .ni').forEach(n=>{n.classList.toggle('active',n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+sec+"'"));});
+  showPanel('staffown');const s=SDB.find(x=>x.id===AID);if(!s)return;
+  const c=document.getElementById('soContent');
+  if(sec==='overview'){
+    const sc=h7score(s),ms=H7.filter(i=>!i.c(s));
+    c.innerHTML=`<div class="fs"><div class="fs-t">📋 My HR.7 File Status</div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;"><div style="flex:1;background:var(--gray2);border-radius:7px;height:13px;overflow:hidden;"><div style="height:13px;border-radius:7px;background:${sc>=80?'var(--green)':sc>=50?'var(--gold)':'var(--red)'};width:${sc}%;transition:width .6s;"></div></div><div style="font-size:24px;font-weight:700;color:${sc>=80?'var(--green)':sc>=50?'var(--gold)':'var(--red)'};font-family:'DM Mono',monospace;">${sc}%</div></div>
+    ${ms.length?`<div class="wbox"><strong>Still needed (${ms.length} items):</strong><ul style="margin-top:7px;padding-left:16px;">${ms.map(i=>`<li style="font-size:11px;margin-bottom:2px;">${i.l} — ${i.d}</li>`).join('')}</ul></div>`:'<div class="ibox">🎉 Your file is 100% complete! All HR.7 requirements are met.</div>'}</div>`;
+  }else if(sec==='personal'){c.innerHTML='';rPersonal(s,'soContent',false);}
+  else if(sec==='credentials'){c.innerHTML='';rCred(s,'soContent',false);}
+  else if(sec==='documents'){c.innerHTML='';rDocs(s,'soContent',false);}
+  else if(sec==='training'){c.innerHTML='';rTraining(s,'soContent',false);}
+  else if(sec==='employment'){c.innerHTML='';rEmp(s,'soContent',true);}
+  else if(sec==='health'){c.innerHTML='';rHealth(s,'soContent',false);}
+  else if(sec==='hr7'){c.innerHTML='<div id="h7c"></div>';renderH7('#h7c');}
+}
+function saveSO(){if(!guardAID())return;const s=SDB.find(x=>x.id===AID);if(!s)return;rdForm(s);saveS();showSec(curSec);toast('Your file saved.');}
+// ── DOC CARDS ──
+function dcCard(doc,s,ro){
+  const hf=!!(s.docs&&s.docs[doc.id]);
+  const badge=hf?'<span class="dbadge dbOK">✓ Filed</span>':doc.req?'<span class="dbadge dbR">Required</span>':'<span class="dbadge dbO">Optional</span>';
+  const fn=hf?(s.docs[doc.id+'_name']||'File on record'):'';
+  const ex=(s.docExpiry&&s.docExpiry[doc.id])||'';
+  const expH=doc.exp&&!ro?`<div class="doc-exp"><input type="date" value="${ex}" onclick="event.stopPropagation()" onchange="setDE('${doc.id}',this.value)" title="Expiry date"></div>`:doc.exp&&ex?`<div style="font-size:9px;color:var(--gray4);margin-top:3px;">Exp: ${ex}</div>`:'';
+  const rm=!ro&&hf?`<button class="doc-rm-btn" onclick="event.stopPropagation();rmDoc('${doc.id}')">×</button>`:'';
+  const fi=!ro?`<input type="file" id="docfile-${doc.id}" accept="image/*,application/pdf" capture="environment">`:'';
+  const cl=!ro?`onclick="document.getElementById('docfile-${doc.id}').click()"`:'';
+  return`<div class="doc-card ${hf?'hf':doc.req?'rm':''} ${ro?'ro':''}" ${cl}>${rm}${fi}${badge}<span class="doc-ic">${hf?'✅':doc.icon}</span><div class="doc-nm">${doc.name}</div><div class="doc-sub">${doc.note}</div>${fn?`<div class="doc-fn">📎 ${fn}</div>`:''}${expH}</div>`;
+}
+function attachDoc(id){const el=document.getElementById('docfile-'+id);if(el)el.onchange=e=>uploadDoc(e,id);}
+function uploadDoc(e,id){
+  const f=e.target.files[0];if(!f)return;
+  if(!guardAID())return;
+  const s=SDB.find(x=>x.id===AID);if(!s)return;
+  compress(f,(data,nm)=>{if(!s.docs)s.docs={};s.docs[id]=data;s.docs[id+'_name']=nm;saveS();refreshDocArea(id,s);updBadges(s);toast('Document uploaded.');syncGAS('doc',{staffId:s.id,docId:id,fileName:nm});});
+}
+function rmDoc(id){if(!guardAID())return;const s=SDB.find(x=>x.id===AID);if(!s)return;delete s.docs[id];delete s.docs[id+'_name'];saveS();refreshDocArea(id,s);updBadges(s);toast('Document removed.','wrn');}
+function setDE(id,v){if(!guardAID())return;const s=SDB.find(x=>x.id===AID);if(!s)return;if(!s.docExpiry)s.docExpiry={};s.docExpiry[id]=v;saveS();}
+function refreshDocArea(id,s){
+  // Find which tab this doc belongs to and re-render
+  const maps=[[CDOCS,'pc-credentials','soContent'],[SDOCS,'pc-documents','soContent'],[EDOCS,'pc-employment','soContent'],[HDOCS,'pc-health','soContent']];
+  maps.forEach(([defs,adminId])=>{
+    if(defs.find(d=>d.id===id)){
+      // Try to find the doc-grid in current active tab
+      const grids=document.querySelectorAll('.doc-grid');
+      grids.forEach(grid=>{
+        if(grid.innerHTML.includes(`docfile-${id}`)){
+          grid.innerHTML=defs.map(d=>dcCard(d,s,false)).join('');
+          defs.forEach(d=>attachDoc(d.id));
+        }
+      });
+    }
+  });
+}
+function uploadIdPhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  if(!guardAID())return;
+  const s=SDB.find(x=>x.id===AID);if(!s)return;
+  compress(f,(data)=>{const prev=document.getElementById('idpPrev');if(prev)prev.innerHTML=`<img src="${data}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;">`;if(!s.docs)s.docs={};s.docs['photo_3x4']=data;saveS();toast('Photo uploaded.');});
+}
+// ── TRAINING ──
+function trCert(e){const f=e.target.files[0];if(!f)return;compress(f,(data,nm)=>{TTC={data,nm};document.getElementById('tr_cl').textContent='✅ '+nm;});}
+function saveTr(){
+  const t=document.getElementById('tr_t').value.trim();if(!t){toast('Enter training title.','err');return;}
+  if(!guardAID())return;
+  const s=SDB.find(x=>x.id===AID);if(!s)return;if(!s.trainings)s.trainings=[];
+  s.trainings.push({title:t,provider:document.getElementById('tr_p').value,type:document.getElementById('tr_ty').value,date:document.getElementById('tr_d').value,hours:document.getElementById('tr_h').value,hasCert:!!TTC,certData:TTC?TTC.data:null,certName:TTC?TTC.nm:null});
+  TTC=null;saveS();CM('mTR');
+  const cid=isAdmin()?'pc-training':'soContent';rTraining(s,cid,false);updBadges(s);toast('Training record added.');
+  syncGAS('training',{staffId:s.id,record:s.trainings[s.trainings.length-1]});
+  ['tr_t','tr_p','tr_d','tr_h'].forEach(id=>document.getElementById(id).value='');document.getElementById('tr_cl').textContent='Tap to photograph or upload certificate';
+}
+function rmTr(i){if(!guardAID())return;const s=SDB.find(x=>x.id===AID);if(!s)return;s.trainings.splice(i,1);saveS();const cid=isAdmin()?'pc-training':'soContent';rTraining(s,cid,false);updBadges(s);toast('Training removed.','wrn');}
+// ── APPRAISALS ──
+function saveAP(){
+  const y=document.getElementById('ap_y').value;if(!y){toast('Enter year.','err');return;}
+  if(!isAdmin()){toast('Only admins can add appraisals.','err');return;}
+  const s=SDB.find(x=>x.id===AID);if(!s)return;if(!s.appraisals)s.appraisals=[];
+  s.appraisals.push({year:y,period:document.getElementById('ap_p').value,score:document.getElementById('ap_s').value,rating:document.getElementById('ap_r').value,appraiser:document.getElementById('ap_a').value});
+  saveS();CM('mAP');rEmp(s,'pc-employment',false);toast('Appraisal saved.');
+  syncGAS('appraisal',{staffId:s.id,record:s.appraisals[s.appraisals.length-1]});
+}
+function rmAP(i){if(!isAdmin()){toast('Only admins can remove appraisals.','err');return;}const s=SDB.find(x=>x.id===AID);if(!s)return;s.appraisals.splice(i,1);saveS();rEmp(s,'pc-employment',false);toast('Appraisal removed.','wrn');}
+// ── HR7 CHECK ──
+function renderH7(sel){
+  const d=document.querySelector(sel);if(!d)return;const s=SDB.find(x=>x.id===AID);if(!s){d.innerHTML='<div class="ibox">No staff selected.</div>';return;}
+  let p=0;const items=H7.map(i=>{const ok=i.c(s);if(ok)p++;return`<div class="chi"><span class="chi-ic">${ok?'✅':'❌'}</span><div class="chi-tx"><div class="chi-t">${i.l}</div><div class="chi-d">${i.d}</div></div><span class="chi-b ${ok?'b-ok':'b-ms'}">${ok?'Present':'Missing'}</span></div>`;}).join('');
+  const pct=Math.round(p/H7.length*100),col=pct>=80?'var(--green)':pct>=50?'var(--gold)':'var(--red)';
+  d.innerHTML=`<div class="chk">${items}</div><div style="margin-top:16px;background:#fff;border-radius:var(--radius-lg);padding:15px 18px;box-shadow:var(--shadow);"><div style="font-size:12px;font-weight:600;margin-bottom:9px;color:var(--navy);">HR.7 Compliance Score</div><div style="display:flex;align-items:center;gap:13px;"><div style="flex:1;background:var(--gray2);border-radius:5px;height:11px;overflow:hidden;"><div style="height:11px;border-radius:5px;background:${col};width:${pct}%;transition:width .6s;"></div></div><div style="font-size:21px;font-weight:700;color:${col};font-family:'DM Mono',monospace;">${pct}%</div></div></div>`;
+}
+function h7score(s){return Math.round(H7.filter(i=>i.c(s)).length/H7.length*100);}
+// ── EXPIRY ──
+function getExp(days){
+  const now=new Date(),lim=new Date(now.getTime()+days*86400000),res=[];
+  SDB.filter(s=>!s.inactive).forEach(s=>{
+    if(s.licenseExpiry){const d=new Date(s.licenseExpiry);if(d>=now&&d<=lim)res.push({nm:s.firstName+' '+s.lastName,dept:s.department||'—',lbl:'Professional License',days:Math.ceil((d-now)/86400000),ds:s.licenseExpiry,id:s.id});}
+    if(s.docExpiry){Object.entries(s.docExpiry).forEach(([k,v])=>{if(!v)return;const d=new Date(v);if(d>=now&&d<=lim)res.push({nm:s.firstName+' '+s.lastName,dept:s.department||'—',lbl:k.replace(/_/g,' '),days:Math.ceil((d-now)/86400000),ds:v,id:s.id});});}
+  });
+  return res.sort((a,b)=>a.days-b.days);
+}
+function renderExpiry(days){
+  const tb=document.getElementById('expTbl');if(!tb)return;
+  const docs=getExp(days);
+  tb.innerHTML=docs.length?docs.map(e=>{const ug=e.days<=14,wn=e.days<=30,st=ug?'🔴 Urgent':wn?'🟡 Soon':'🟢 OK',c=ug?'color:var(--red);font-weight:700':wn?'color:var(--gold);font-weight:600':'';
+  return`<tr><td><strong>${e.nm}</strong></td><td>${e.dept}</td><td>${e.lbl}</td><td style="font-family:'DM Mono',monospace;">${e.ds}</td><td style="${c}">${e.days} days</td><td>${st}</td><td><button class="bs t" onclick="openProf('${e.id}')">Open File</button></td></tr>`;}).join(''):`<tr><td colspan="7" style="text-align:center;color:var(--gray3);padding:26px;">No documents expiring in the next ${days} days.</td></tr>`;
+}
+// ── AUDIT ──
+function renderAudit(){
+  const tb=document.getElementById('audTbl');if(!tb)return;
+  const a=SDB.filter(s=>!s.inactive);
+  tb.innerHTML=a.length?a.map((s,i)=>{const sc=h7score(s),ms=H7.filter(x=>!x.c(s)).map(x=>x.l),pc=sc>=80?'p-g':sc>=50?'p-au':'p-r';return`<tr><td>${i+1}</td><td><strong>${s.firstName} ${s.lastName}</strong></td><td>${s.position||'—'}</td><td>${s.department||'—'}</td><td><span class="pill ${pc}">${sc}%</span></td><td style="font-size:10px;color:var(--red);">${ms.length?ms.join(', '):'<span style="color:var(--green)">✓ All complete</span>'}</td><td><button class="bs t" onclick="openProf('${s.id}')">Open</button></td></tr>`;}).join(''):`<tr><td colspan="7" style="text-align:center;color:var(--gray3);padding:26px;">No staff records.</td></tr>`;
+}
+// ── EXPORT ──
+function xCSV(type){
+  let rows=[],fn='';
+  if(type==='all'){fn='KCPH_Staff_Registry.csv';rows=[['ID','First Name','Last Name','Khmer Name','DOB','Gender','National ID','Phone','Position','Department','Council No','License Expiry','Date Hired','Emp Type','Education','Specialization','HBV Status','COVID Status','HR.7 Score','Status']];SDB.forEach(s=>rows.push([s.staffId||'',s.firstName||'',s.lastName||'',s.khmerName||'',s.dob||'',s.gender||'',s.nationalId||'',s.phone||'',s.position||'',s.department||'',s.councilNo||'',s.licenseExpiry||'',s.dateHired||'',s.empType||'',s.education||'',s.specialization||'',s.hbvStatus||'',s.covidStatus||'',h7score(s)+'%',s.inactive?'Inactive':'Active']));}
+  else if(type==='hr7'){fn='KCPH_HR7_Compliance.csv';rows=[['Name','Position','Department','HR.7 Score',...H7.map(i=>i.l),'Status']];SDB.filter(s=>!s.inactive).forEach(s=>rows.push([s.firstName+' '+s.lastName,s.position||'',s.department||'',h7score(s)+'%',...H7.map(i=>i.c(s)?'✓':'✗'),'Active']));}
+  else if(type==='expiry'){fn='KCPH_Expiry_90days.csv';rows=[['Staff Name','Department','Document','Expiry Date','Days Left','Status']];getExp(90).forEach(e=>rows.push([e.nm,e.dept,e.lbl,e.ds,e.days+'',e.days<=14?'URGENT':e.days<=30?'SOON':'OK']));}
+  else if(type==='training'){fn='KCPH_Training.csv';rows=[['Staff Name','Position','Dept','Title','Provider','Type','Date','Hours','Certificate']];SDB.filter(s=>!s.inactive).forEach(s=>(s.trainings||[]).forEach(t=>rows.push([s.firstName+' '+s.lastName,s.position||'',s.department||'',t.title,t.provider||'',t.type||'',t.date||'',t.hours||'',t.hasCert?'Yes':'No'])));if(rows.length===1)rows.push(['No training records.']);}
+  const csv=rows.map(r=>r.map(c=>'"'+(c||'').toString().replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fn;a.click();URL.revokeObjectURL(url);toast('Exported: '+fn);
+}
+function printAudit(){
+  const rows=SDB.filter(s=>!s.inactive).map((s,i)=>{const sc=h7score(s),ms=H7.filter(x=>!x.c(s)).map(x=>x.l).join(', ')||'—',c=sc>=80?'#1a7a4a':sc>=50?'#8a6020':'#c0392b';return`<tr><td>${i+1}</td><td>${s.firstName} ${s.lastName}</td><td>${s.position||'—'}</td><td>${s.department||'—'}</td><td style="color:${c};font-weight:700">${sc}%</td><td style="font-size:10px;color:#c0392b;">${ms}</td></tr>`;}).join('');
+  const w=window.open('','_blank');w.document.write(`<!DOCTYPE html><html><head><title>KCPH HR.7 Audit Report</title><style>body{font-family:Arial,sans-serif;padding:26px;max-width:900px;margin:auto;}h2{font-size:19px;}p{color:#666;font-size:11px;margin-bottom:18px;}table{width:100%;border-collapse:collapse;}th{background:#0d1b2a;color:#fff;padding:8px 11px;font-size:10px;text-align:left;}td{padding:7px 11px;font-size:11px;border-bottom:1px solid #eee;}</style></head><body><h2>KCPH HR.7 Personnel File Audit Report</h2><p>Kampong Chhnang Provincial Hospital · CHAS Standard HR.7 · ${new Date().toLocaleDateString()}</p><table><thead><tr><th>#</th><th>Name</th><th>Position</th><th>Dept</th><th>HR.7 Score</th><th>Missing Items</th></tr></thead><tbody>${rows}</tbody></table><script>window.print();<\/script></body></html>`);w.document.close();
+}
+function printProfile(){
+  const s=SDB.find(x=>x.id===AID);if(!s){toast('No staff selected.','err');return;}
+  const sc=h7score(s),h7=H7.map(i=>`<li style="color:${i.c(s)?'#1a7a4a':'#c0392b'}">${i.c(s)?'✓':'✗'} ${i.l}</li>`).join('');
+  const w=window.open('','_blank');w.document.write(`<!DOCTYPE html><html><head><title>Personnel File — ${s.firstName} ${s.lastName}</title><style>body{font-family:Arial,sans-serif;padding:26px;max-width:800px;margin:auto;}h1{font-size:19px;}table{width:100%;border-collapse:collapse;}td,th{padding:7px;border:1px solid #ddd;font-size:11px;}th{background:#f0f0f0;}ul{margin:0;padding-left:16px;}li{font-size:11px;margin-bottom:2px;}</style></head><body><h1>Personnel File — ${s.firstName} ${s.lastName}</h1><p style="color:#666;font-size:10px;">CHAS HR.7 · Kampong Chhnang Provincial Hospital · Printed: ${new Date().toLocaleDateString()}</p><table><tr><th colspan="2">Personal Info</th></tr><tr><td>Name</td><td>${s.firstName} ${s.lastName} / ${s.khmerName||'—'}</td></tr><tr><td>DOB / Gender</td><td>${s.dob||'—'} / ${s.gender||'—'}</td></tr><tr><td>National ID</td><td>${s.nationalId||'—'}</td></tr><tr><td>Phone</td><td>${s.phone||'—'}</td></tr><tr><th colspan="2">Employment</th></tr><tr><td>Staff ID</td><td>${s.staffId||'—'}</td></tr><tr><td>Position / Dept</td><td>${s.position||'—'} / ${s.department||'—'}</td></tr><tr><td>Date Hired</td><td>${s.dateHired||'—'}</td></tr><tr><td>Employment Type</td><td>${s.empType||'—'}</td></tr><tr><th colspan="2">Credentials</th></tr><tr><td>Education</td><td>${s.education||'—'}</td></tr><tr><td>Council No / Expiry</td><td>${s.councilNo||'—'} / ${s.licenseExpiry||'—'}</td></tr><tr><th colspan="2">Health</th></tr><tr><td>HBV Status</td><td>${s.hbvStatus||'—'}</td></tr><tr><td>COVID Status</td><td>${s.covidStatus||'—'}</td></tr><tr><th colspan="2">CHAS HR.7 — ${sc}%</th></tr><tr><td colspan="2"><ul>${h7}</ul></td></tr></table><script>window.print();<\/script></body></html>`);w.document.close();
+}
+// ── COMPRESS ──
+function compress(file,cb){
+  if(file.type==='application/pdf'){const r=new FileReader();r.onload=e=>cb(e.target.result,file.name);r.readAsDataURL(file);return;}
+  const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const MAX=800;let w=img.width,h=img.height;if(w>h&&w>MAX){h=Math.round(h*MAX/w);w=MAX;}else if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);cb(c.toDataURL('image/jpeg',.72),file.name.replace(/\.[^.]+$/,'.jpg'));};img.src=e.target.result;};r.readAsDataURL(file);
+}
+async function syncGAS(action,payload){
+  if(!GU)return;
+  try{
+    const safe=JSON.parse(JSON.stringify(payload));
+    if(safe.docs)Object.keys(safe.docs).forEach(k=>{if(typeof safe.docs[k]==='string'&&safe.docs[k].startsWith('data:'))safe.docs[k]='[LOCAL]';});
+    // Use no-cors for POST to GAS (avoids CORS preflight issues on Chrome/Safari)
+    await fetch(GU,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,payload:safe})});
+  }catch(e){}
+}
+// ── BILINGUAL SUPPORT ──
+var LANG = localStorage.getItem('kcph_lang') || 'en';
+
+const T = {
+  en: {
+    // Login
+    login_title: 'Personnel File System',
+    login_sub: 'KAMPONG CHHNANG PROVINCIAL HOSPITAL · CHAS HR.7',
+    login_user: 'Username / Staff ID',
+    login_pass: 'Password',
+    login_btn: 'Sign In',
+    login_hint: 'Default admin · username: admin · password: admin123',
+    // Topbar
+    sys_title: 'Personnel File Management System',
+    sys_sub: 'KAMPONG CHHNANG PROVINCIAL HOSPITAL · CHAS HR.7',
+    btn_new_staff: '＋ New Staff',
+    btn_signout: 'Sign Out',
+    // Sidebar nav
+    nav_dashboard: 'Dashboard',
+    nav_usermgmt: 'User Management',
+    nav_expiry: 'Expiry Monitor',
+    nav_audit: 'HR.7 Audit',
+    nav_export: 'Export Data',
+    nav_myfile: 'My File',
+    nav_overview: 'My Overview',
+    nav_personal: 'Personal Info',
+    nav_credentials: 'Credentials',
+    nav_documents: 'Documents',
+    nav_training: 'Training',
+    nav_employment: 'Employment',
+    nav_health: 'Health Records',
+    nav_hr7: 'HR.7 Status',
+    // Dashboard
+    dash_title: 'HR.7 Compliance Dashboard',
+    stat_total: 'Total Staff Files',
+    stat_complete: 'Complete (HR.7 100%)',
+    stat_incomplete: 'Incomplete Files',
+    stat_expiring: 'Expiring ≤30 Days',
+    compliance_title: 'Document Compliance by Type',
+    expiry_title: 'Upcoming Expirations (60 days)',
+    // Panels
+    usermgmt_title: 'User Management',
+    usermgmt_sub: 'Create, manage, and deactivate staff accounts',
+    btn_create_staff: '＋ Create Staff Account',
+    btn_add_admin: '＋ Add Admin User',
+    expiry_title2: 'Document Expiry Monitor',
+    expiry_sub: 'Licenses and certifications expiring soon',
+    audit_title: 'HR.7 Hospital-Wide Audit',
+    audit_sub: 'CHAS HR.7 compliance status for all personnel files',
+    export_title: 'Export & Reports',
+    export_sub: 'Download staff data and compliance reports',
+    // Tabs
+    tab_personal: '👤 Personal',
+    tab_credentials: '🏅 Credentials',
+    tab_documents: '📁 Documents',
+    tab_training: '🎓 Training',
+    tab_employment: '📝 Employment',
+    tab_health: '💉 Health',
+    tab_hr7: '✅ HR.7 Check',
+    // Buttons
+    btn_save: '💾 Save',
+    btn_print: '🖨️ Print',
+    btn_remove: '🗑️ Remove Staff',
+    btn_save_my: '💾 Save My File',
+    // Form labels
+    lbl_firstname: 'First Name',
+    lbl_lastname: 'Last Name',
+    lbl_khmer: 'Khmer Name',
+    lbl_dob: 'Date of Birth',
+    lbl_gender: 'Gender',
+    lbl_national_id: 'National ID / Passport',
+    lbl_phone: 'Phone',
+    lbl_address: 'Home Address',
+    lbl_position: 'Position',
+    lbl_department: 'Department',
+    lbl_council: 'Council No.',
+    lbl_license_exp: 'License Expiry',
+    lbl_education: 'Education Level',
+    lbl_specialization: 'Specialization',
+    lbl_staff_id: 'Staff ID / Employee No.',
+    lbl_emp_type: 'Employment Type',
+    lbl_date_hired: 'Date Hired',
+    lbl_contract_end: 'Contract End Date',
+    lbl_job_desc: 'Job Description Summary',
+    lbl_notes: 'Notes',
+    lbl_hbv: 'HBV Vaccination Status',
+    lbl_hbv_date: 'HBV Last Dose Date',
+    lbl_titer: 'Anti-HBs Titer',
+    lbl_titer_date: 'Titer Test Date',
+    lbl_covid: 'COVID-19 Vaccination',
+    lbl_health_check: 'Annual Health Check Date',
+    lbl_health_notes: 'Health Remarks',
+    lbl_photo: 'Staff Photo',
+    // Modal titles
+    modal_new_staff: '➕ Create New Staff Account',
+    modal_new_admin: '🔑 Add Admin User',
+    modal_change_pw: '🔑 Change Password',
+    modal_training: '🎓 Add Training Record',
+    modal_appraisal: '📊 Add Performance Appraisal',
+    modal_remove: '⚠️ Remove Staff Account',
+    // Misc
+    syncing: 'Syncing data…',
+    lbl_username: 'Username',
+    lbl_password: 'Password',
+    lbl_init_pw: 'Initial Password',
+    lbl_display_name: 'Display Name',
+    lbl_name: 'Name',
+    lbl_role: 'Role',
+    btn_cancel: 'Cancel',
+    btn_create: 'Create Account',
+    btn_create_admin: 'Create Admin',
+    btn_update_pw: 'Update Password',
+    btn_add_training: 'Add Training',
+    btn_save_ap: 'Save',
+    btn_remove_confirm: 'Remove Account',
+    remove_warning: 'Staff login access will be revoked and marked Inactive. Personnel file data is retained for audit purposes. This cannot be undone.',
+    no_file_linked: '⚠️ No personnel file linked to your account. Please contact the administrator.',
+  },
+  kh: {
+    // Login
+    login_title: 'ប្រព័ន្ធគ្រប់គ្រងឯកសារបុគ្គលិក',
+    login_sub: 'មន្ទីរពេទ្យខេត្តកំពង់ឆ្នាំង · CHAS HR.7',
+    login_user: 'ឈ្មោះអ្នកប្រើ / លេខសម្គាល់',
+    login_pass: 'លេខសម្ងាត់',
+    login_btn: 'ចូល',
+    login_hint: 'Admin លំនាំដើម · username: admin · password: admin123',
+    // Topbar
+    sys_title: 'ប្រព័ន្ធគ្រប់គ្រងឯកសារបុគ្គលិក',
+    sys_sub: 'មន្ទីរពេទ្យខេត្តកំពង់ឆ្នាំង · CHAS HR.7',
+    btn_new_staff: '＋ បុគ្គលិកថ្មី',
+    btn_signout: 'ចាកចេញ',
+    // Sidebar nav
+    nav_dashboard: 'ផ្ទាំងគ្រប់គ្រង',
+    nav_usermgmt: 'គ្រប់គ្រងអ្នកប្រើ',
+    nav_expiry: 'តាមដានការផុតកំណត់',
+    nav_audit: 'សវនកម្ម HR.7',
+    nav_export: 'នាំចេញទិន្នន័យ',
+    nav_myfile: 'ឯកសាររបស់ខ្ញុំ',
+    nav_overview: 'ទិដ្ឋភាពទូទៅ',
+    nav_personal: 'ព័ត៌មានផ្ទាល់ខ្លួន',
+    nav_credentials: 'វឌ្ឍនភាព',
+    nav_documents: 'ឯកសារ',
+    nav_training: 'បណ្តុះបណ្តាល',
+    nav_employment: 'ការងារ',
+    nav_health: 'កំណត់ត្រាសុខភាព',
+    nav_hr7: 'ស្ថានភាព HR.7',
+    // Dashboard
+    dash_title: 'ផ្ទាំងតាមដានការអនុលោម HR.7',
+    stat_total: 'ឯកសារបុគ្គលិកសរុប',
+    stat_complete: 'ឯកសារពេញលេញ (HR.7 100%)',
+    stat_incomplete: 'ឯកសារមិនពេញលេញ',
+    stat_expiring: 'ផុតកំណត់ ≤៣០ ថ្ងៃ',
+    compliance_title: 'ការអនុលោមឯកសារតាមប្រភេទ',
+    expiry_title: 'ការផុតកំណត់ខាងមុខ (៦០ ថ្ងៃ)',
+    // Panels
+    usermgmt_title: 'គ្រប់គ្រងអ្នកប្រើប្រាស់',
+    usermgmt_sub: 'បង្កើត គ្រប់គ្រង និងបិទដំណើរការគណនីបុគ្គលិក',
+    btn_create_staff: '＋ បង្កើតគណនីបុគ្គលិក',
+    btn_add_admin: '＋ បន្ថែម Admin',
+    expiry_title2: 'តាមដានការផុតកំណត់ឯកសារ',
+    expiry_sub: 'អាជ្ញាបណ្ណ និងវិញ្ញាបនប័ត្រដែលជិតផុតកំណត់',
+    audit_title: 'សវនកម្ម HR.7 ទូទៅមន្ទីរពេទ្យ',
+    audit_sub: 'ស្ថានភាពការអនុលោម CHAS HR.7 សម្រាប់ឯកសារបុគ្គលិកទាំងអស់',
+    export_title: 'នាំចេញ និងរបាយការណ៍',
+    export_sub: 'ទាញយកទិន្នន័យបុគ្គលិក និងរបាយការណ៍ការអនុលោម',
+    // Tabs
+    tab_personal: '👤 ផ្ទាល់ខ្លួន',
+    tab_credentials: '🏅 វិញ្ញាបនប័ត្រ',
+    tab_documents: '📁 ឯកសារ',
+    tab_training: '🎓 បណ្តុះបណ្តាល',
+    tab_employment: '📝 ការងារ',
+    tab_health: '💉 សុខភាព',
+    tab_hr7: '✅ ពិនិត្យ HR.7',
+    // Buttons
+    btn_save: '💾 រក្សាទុក',
+    btn_print: '🖨️ បោះពុម្ព',
+    btn_remove: '🗑️ លុបបុគ្គលិក',
+    btn_save_my: '💾 រក្សាទុកឯកសាររបស់ខ្ញុំ',
+    // Form labels
+    lbl_firstname: 'នាម',
+    lbl_lastname: 'គោត្តនាម',
+    lbl_khmer: 'ឈ្មោះជាភាសាខ្មែរ',
+    lbl_dob: 'ថ្ងៃខែឆ្នាំកំណើត',
+    lbl_gender: 'ភេទ',
+    lbl_national_id: 'អត្តសញ្ញាណប័ណ្ណ / លិខិតឆ្លងដែន',
+    lbl_phone: 'លេខទូរស័ព្ទ',
+    lbl_address: 'អាសយដ្ឋាន',
+    lbl_position: 'មុខតំណែង',
+    lbl_department: 'នាយកដ្ឋាន',
+    lbl_council: 'លេខចុះបញ្ជីក្រុមប្រឹក្សា',
+    lbl_license_exp: 'ថ្ងៃផុតកំណត់អាជ្ញាបណ្ណ',
+    lbl_education: 'កម្រិតការអប់រំ',
+    lbl_specialization: 'ឯកទេស',
+    lbl_staff_id: 'លេខសម្គាល់បុគ្គលិក',
+    lbl_emp_type: 'ប្រភេទការងារ',
+    lbl_date_hired: 'កាលបរិច្ឆេទចូលបម្រើការ',
+    lbl_contract_end: 'ថ្ងៃផុតកំណត់កិច្ចសន្យា',
+    lbl_job_desc: 'សង្ខេបការងារ',
+    lbl_notes: 'កំណត់ចំណាំ',
+    lbl_hbv: 'ស្ថានភាពវ៉ាក់សាំង HBV',
+    lbl_hbv_date: 'ថ្ងៃចាក់វ៉ាក់សាំង HBV ចុងក្រោយ',
+    lbl_titer: 'លទ្ធផល Anti-HBs Titer',
+    lbl_titer_date: 'ថ្ងៃធ្វើតេស្ត Titer',
+    lbl_covid: 'វ៉ាក់សាំង COVID-19',
+    lbl_health_check: 'ថ្ងៃពិនិត្យសុខភាពប្រចាំឆ្នាំ',
+    lbl_health_notes: 'កំណត់ចំណាំសុខភាព',
+    lbl_photo: 'រូបថតបុគ្គលិក',
+    // Modal titles
+    modal_new_staff: '➕ បង្កើតគណនីបុគ្គលិកថ្មី',
+    modal_new_admin: '🔑 បន្ថែមអ្នកគ្រប់គ្រង',
+    modal_change_pw: '🔑 ផ្លាស់ប្ដូរលេខសម្ងាត់',
+    modal_training: '🎓 បន្ថែមកំណត់ត្រាបណ្តុះបណ្តាល',
+    modal_appraisal: '📊 បន្ថែមការវាយតម្លៃការអនុវត្ត',
+    modal_remove: '⚠️ លុបគណនីបុគ្គលិក',
+    // Misc
+    syncing: 'កំពុងធ្វើសមកាលកម្ម…',
+    lbl_username: 'ឈ្មោះអ្នកប្រើ',
+    lbl_password: 'លេខសម្ងាត់',
+    lbl_init_pw: 'លេខសម្ងាត់ដំបូង',
+    lbl_display_name: 'ឈ្មោះបង្ហាញ',
+    lbl_name: 'ឈ្មោះ',
+    lbl_role: 'តួនាទី',
+    btn_cancel: 'បោះបង់',
+    btn_create: 'បង្កើតគណនី',
+    btn_create_admin: 'បង្កើត Admin',
+    btn_update_pw: 'ធ្វើបច្ចុប្បន្នភាពលេខសម្ងាត់',
+    btn_add_training: 'បន្ថែមបណ្តុះបណ្តាល',
+    btn_save_ap: 'រក្សាទុក',
+    btn_remove_confirm: 'លុបគណនី',
+    remove_warning: 'ការចូលប្រើប្រាស់របស់បុគ្គលិកនឹងត្រូវបានដកហូត។ ទិន្នន័យឯកសារនឹងត្រូវបានរក្សាទុកសម្រាប់គោលបំណងសវនកម្ម។ វិធានការនេះមិនអាចត្រឡប់វិញបានទេ។',
+    no_file_linked: '⚠️ មិនមានឯកសារផ្ទាល់ខ្លួនភ្ជាប់នឹងគណនីរបស់អ្នក។ សូមទំនាក់ទំនងអ្នកគ្រប់គ្រង។',
+  }
+};
+
+// Bilingual position names
+const POS_KH = {
+  'Medical Doctor':'វេជ្ជបណ្ឌិត',
+  'Specialist Doctor':'វេជ្ជបណ្ឌិតឯកទេស',
+  'Nurse':'គិលានុបដ្ឋាយិកា',
+  'Midwife':'助産士 អ្នកសម្ភព',
+  'Pharmacist':'药剂师 药剂师',
+  'Laboratory Technician':'បច្ចេកទេសមន្ទីរពិសោធន៍',
+  'Radiographer':'បច្ចេកទេសថតកាំរស្មី',
+  'Physiotherapist':'អ្នករាងកាយព្យាបាល',
+  'Dentist':'牙医 牙医',
+  'Accountant':'គណនេយ្យករ',
+  'Medical Equipment Engineer':'វិស្វករគ្រឿងបរិក្ខារវេជ្ជសាស្ត្រ',
+  'Mechanician':'មេការ',
+  'Administrator':'អ្នករដ្ឋបាល',
+  'Finance Officer':'មន្ត្រីហិរញ្ញវត្ថុ',
+  'Driver':'អ្នកបើកបរ',
+  'Security':'ប្រចាំការណ៍',
+  'Cleaner/Support':'អ្នកសំអាត/គាំទ្រ',
+  'Other':'ផ្សេងទៀត'
+};
+
+const DEPT_KH = {
+  'General Medicine':'អាយុរោគ',
+  'ICU':'ថែទាំដែនចំណាំ (ICU)',
+  'NICU':'ថែទាំទារក (NICU)',
+  'Pediatrics':'គរោគ',
+  'Maternity / MCH':'ម្ដាយនិងកុមារ',
+  'Gynecology':'រោគស្ត្រី',
+  'Surgery':'វះកាត់',
+  'Operating Theatre (OT)':'ห้องผ่าตัด បន្ទប់វះកាត់',
+  'OPD':'មន្ទីរពិនិត្យក្រៅ',
+  'Emergency':'បន្ទាន់',
+  'Pharmacy':'ឱសថស្ថាន',
+  'Laboratory':'មន្ទីរពិសោធន៍',
+  'Radiology':'កាំរស្មី',
+  'Blood Bank':'ធនាគារឈាម',
+  'Dialysis':'ជំរះតម្រងនោម',
+  'ENT':'귀코목 ត្រចៀក ច្រមុះ បំពង់ករ',
+  'Oral Health':'សុខភាពមាត់',
+  'Mental Health':'សុខភាពផ្លូវចិត្ត',
+  'NCD':'ជំងឺមិនឆ្លង (NCD)',
+  'Hepatitis':'ថ្លើម',
+  'Tuberculosis':'របេង (TB)',
+  'PMRS':'PMRS',
+  'OI/ART':'OI/ART',
+  'Ambulance':'រថយន្តសង្គ្រោះ',
+  'Technical Office':'ការិយាល័យបច្ចេកទេស',
+  'Administration':'រដ្ឋបាល',
+  'Finance':'ហិរញ្ញវត្ថុ',
+  'IPC':'ការពារការឆ្លងមេរោគ (IPC)',
+  'Digital':'ឌីជីថល',
+  'Other':'ផ្សេងទៀត'
+};
+
+function t(key){ return (T[LANG]&&T[LANG][key]) ? T[LANG][key] : (T.en[key]||key); }
+
+function setLang(lang){
+  LANG=lang;
+  localStorage.setItem('kcph_lang',lang);
+  applyLang();
+}
+
+function toggleLang(){
+  setLang(LANG==='en'?'kh':'en');
+}
+
+function applyLang(){
+  const isKh = LANG==='kh';
+  const kh = isKh;
+  // Update lang toggle button
+  const lb=document.getElementById('langBtn');
+  if(lb)lb.textContent=kh?'🇬🇧 English':'🇰🇭 ខ្មែរ';
+  const be=document.getElementById('btnLangEn');
+  const bk=document.getElementById('btnLangKh');
+  if(be){be.style.background=kh?'#fff':'var(--teal)';be.style.color=kh?'var(--navy)':'#fff';be.style.borderColor=kh?'var(--gray2)':'var(--teal)';}
+  if(bk){bk.style.background=kh?'var(--teal)':'#fff';bk.style.color=kh?'#fff':'var(--navy)';bk.style.borderColor=kh?'var(--teal)':'var(--gray2)';}
+  // Login screen
+  applyT('login-title-txt','login_title');
+  applyT('login-sub-txt','login_sub');
+  applyT('login-user-lbl','login_user');
+  applyT('login-pass-lbl','login_pass');
+  applyT('lBtnTxt','login_btn');
+  applyT('login-hint-txt','login_hint');
+  // Topbar
+  applyT('ttitleTxt','sys_title');
+  applyT('tsubTxt','sys_sub');
+  applyT('btnNSTxt','btn_new_staff');
+  applyT('btnSOTxt','btn_signout');
+  // Sidebar admin nav
+  applyT('nav_dashboard_txt','nav_dashboard');
+  applyT('nav_usermgmt_txt','nav_usermgmt');
+  applyT('nav_expiry_txt','nav_expiry');
+  applyT('nav_audit_txt','nav_audit');
+  applyT('nav_export_txt','nav_export');
+  // Sidebar staff nav labels
+  applyT('nav_overview_txt','nav_overview');
+  applyT('nav_personal_txt','nav_personal');
+  applyT('nav_credentials_txt','nav_credentials');
+  applyT('nav_documents_txt','nav_documents');
+  applyT('nav_training_txt','nav_training');
+  applyT('nav_employment_txt','nav_employment');
+  applyT('nav_health_txt','nav_health');
+  applyT('nav_hr7_txt','nav_hr7');
+  // Panel headings
+  applyT('dashTitleTxt','dash_title');
+  applyT('s_tot_lbl','stat_total');
+  applyT('s_cmp_lbl','stat_complete');
+  applyT('s_inc_lbl','stat_incomplete');
+  applyT('s_exp_lbl','stat_expiring');
+  applyT('comp_bars_title','compliance_title');
+  applyT('exp_list_title','expiry_title');
+  applyT('usermgmt_title_txt','usermgmt_title');
+  applyT('usermgmt_sub_txt','usermgmt_sub');
+  applyT('btnCreateStaffTxt','btn_create_staff');
+  applyT('btnAddAdminTxt','btn_add_admin');
+  // Modal titles & buttons
+  applyT('mNS_title','modal_new_staff');
+  applyT('mNA_title','modal_new_admin');
+  applyT('mCPW_title','modal_change_pw');
+  applyT('mTR_title','modal_training');
+  applyT('mAP_title','modal_appraisal');
+  applyT('mDEL_title','modal_remove');
+  // Apply Hanuman font to body if Khmer
+  document.body.style.fontFamily = kh ? "Hanuman, DM Sans, sans-serif" : "DM Sans, sans-serif";
+}
+
+function applyT(id, key){
+  const el=document.getElementById(id);
+  if(el)el.textContent=t(key);
+}
+
+// Call applyLang on page ready (after onload sets up DOM)
+document.addEventListener('DOMContentLoaded', function(){
+  // Small delay to ensure DOM is ready
+  setTimeout(applyLang, 50);
+});
+
+// ── MODAL & TOAST ──
+function CM(id){document.getElementById(id).classList.remove('open');}
+function toast(msg,type=''){const w=document.getElementById('TW');const t=document.createElement('div');t.className='toast'+(type?' '+type:'');t.innerHTML=(type==='err'?'❌':type==='wrn'?'⚠️':'✅')+' '+msg;w.appendChild(t);setTimeout(()=>t.remove(),3500);}
+</script>
+<!--
+  ╔══════════════════════════════════════════════════════════╗
+  ║  BACKEND: Google Apps Script                            ║
+  ║  See separate file: kcph-personnel-gas-backend.js       ║
+  ║                                                         ║
+  ║  SETUP:                                                 ║
+  ║  1. Go to https://script.google.com                     ║
+  ║  2. New project → paste the .js file contents          ║
+  ║  3. Deploy → Web App                                    ║
+  ║     Execute as: Me  |  Access: Anyone                   ║
+  ║  4. Copy Web App URL → paste in ⚙️ Settings            ║
+  ║  5. Run initSheets() once to create all sheets          ║
+  ╚══════════════════════════════════════════════════════════╝
+-->
+</body></html>
